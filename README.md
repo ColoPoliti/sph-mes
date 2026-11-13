@@ -94,6 +94,15 @@ Imports con alias: `@/` = `src/` (configurado en `vite.config.js` y `jsconfig.js
 
 Para volver a los datos de ejemplo de Compras: borrar las claves `sph-mes:*` del localStorage.
 
+## Vercel (demo pública)
+
+Vercel no llega a la red de planta (broker MQTT y API en `10.200.1.243`), así que ahí la app
+corre **siempre en modo demo**:
+
+- Variable de entorno en Vercel: `VITE_DEMO=true` (no cargar `VITE_MQTT_PASS`: quedaría expuesta).
+- `vercel.json` ya hace el fallback de rutas a `index.html`.
+- Rama de producción: `main`. Cada push a `desarrollo` genera una URL de vista previa.
+
 ## Producción
 
 Igual que el monitor original: subir `dist/` y configurar en el servidor
