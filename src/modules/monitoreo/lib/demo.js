@@ -1,13 +1,10 @@
 // Modo demostración: simula la telemetría de los PLC sin conectarse al broker MQTT.
-// Se activa abriendo la app con ?demo en la URL (ej: http://localhost:5173/?demo),
-// o siempre con la variable de entorno VITE_DEMO=true (ej: la versión pública en Vercel,
-// que no llega al broker ni a la API de planta).
+// Se activa abriendo la app con ?demo en la URL (ej: http://localhost:5173/?demo).
 // Usa los mismos manejadores que los mensajes MQTT reales, así que todo el
 // monitor (contadores, barras, receta, gráfico) se comporta igual que en producción.
 
 export const DEMO =
-  import.meta.env.VITE_DEMO === 'true' ||
-  (typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('demo'));
+  typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('demo');
 
 // Receta de ejemplo (misma forma que publica Node-RED en AREA/SALA/receta).
 // Etapas: 0 alcohol, 1 colorante (ml), 2 glicerina, 3 agua, 4 esencia, 5 etiqueta y agitado.
