@@ -114,7 +114,7 @@ export default function OrdenDetalle() {
   const acciones = Object.keys(TRANSICIONES[orden.estado] || {}).filter((k) => puede(ACCIONES[k].permiso));
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
         <button type="button" onClick={() => navigate('/compras/ordenes')} className={BOTON.secundario}>
           <FontAwesomeIcon icon={faArrowLeft} aria-hidden="true" />
@@ -154,7 +154,7 @@ export default function OrdenDetalle() {
         {orden.observaciones && <p className={`m-0 sm:col-span-2 xl:col-span-4 ${subClass}`}>{orden.observaciones}</p>}
       </Card>
 
-      <div className="grid grid-cols-1 gap-4 2xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 2xl:grid-cols-3">
         <Card className="flex flex-col gap-2.5 2xl:col-span-2">
           <CardTitulo icono={faListUl}>Ítems</CardTitulo>
           <div className="overflow-x-auto">

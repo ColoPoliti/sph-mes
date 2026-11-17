@@ -143,7 +143,7 @@ export default function OrdenesElaborar() {
   );
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <Encabezado
         titulo="Órdenes a elaborar"
         descripcion="Órdenes con cantidades aprobadas por Calidad, por línea y en orden de prioridad"

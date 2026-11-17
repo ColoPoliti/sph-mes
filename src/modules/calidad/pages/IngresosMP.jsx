@@ -46,7 +46,7 @@ export default function IngresosMP() {
   const cuenta = (k) => recepciones.filter((r) => r.estado === k).length;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <Encabezado titulo="Ingresos de materia prima" descripcion="Inspección y liberación de lo recibido por Compras." icono={faFlaskVial} />
 
       <Card className="flex flex-col gap-3">

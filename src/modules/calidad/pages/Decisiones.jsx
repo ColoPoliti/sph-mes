@@ -40,7 +40,7 @@ export default function Decisiones() {
     ]);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <Encabezado
         titulo="Registro de decisiones"
         descripcion="Quién aprobó o rechazó cada lote, cuándo y por qué."

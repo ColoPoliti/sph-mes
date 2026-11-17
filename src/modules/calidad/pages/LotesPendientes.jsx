@@ -87,7 +87,7 @@ export default function LotesPendientes() {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <Encabezado titulo="Lotes a liberar" descripcion="Al aprobar o rechazar, el lote sale de la bandeja." icono={faListCheck} />
 
       <FiltroPeriodo periodo={periodo} setPeriodo={setPeriodo}>

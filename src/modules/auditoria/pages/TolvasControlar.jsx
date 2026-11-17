@@ -136,7 +136,7 @@ export default function TolvasControlar() {
   );
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <Encabezado
         titulo="Tolvas a controlar"
         descripcion="Control documental de cada tolva aprobada por Calidad que salió a Producción"

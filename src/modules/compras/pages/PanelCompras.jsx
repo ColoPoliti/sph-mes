@@ -26,7 +26,7 @@ export default function PanelCompras() {
   const criticas = materias.filter(bajoMinimo);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <Encabezado
         titulo="Panel de compras"
         descripcion="Órdenes en curso y materias primas bajo punto de pedido."
@@ -55,7 +55,7 @@ export default function PanelCompras() {
         />
       </GrillaKpi>
 
-      <div className="grid grid-cols-1 gap-4 2xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 2xl:grid-cols-2">
         <Card className="flex flex-col gap-2.5">
           <CardTitulo icono={faBoxesStacked}>Bajo punto de pedido</CardTitulo>
           <EstadoConsulta cargando={cargando} error={error} vacio={!criticas.length} textoVacio="Todas las materias primas están sobre el mínimo." />

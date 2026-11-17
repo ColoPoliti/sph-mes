@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import AnimatedCounter from './AnimatedCounter';
 import { labelClass, subClass } from './ui';
 
-import { CARD, CAMPO } from './clases';
+import { CARD, CARD_RECTA, CARD_RELLENO, CAMPO, ESTADOS_KPI } from './clases';
 
 // ---------- Componentes ----------
 
@@ -60,26 +60,58 @@ const TONOS_KPI = {
   rojo: 'text-red-600 dark:text-red-400',
   cielo: 'text-sky-600 dark:text-sky-400',
   verde: 'text-emerald-600 dark:text-emerald-400',
+  naranja: 'text-orange-600 dark:text-orange-400',
+  gris: 'text-gray-500 dark:text-slate-400',
 };
 
-/** Indicador numérico. `to` lo convierte en link (ej.: a la lista filtrada). */
-export function Kpi({ titulo, valor, decimales = 0, sufijo, detalle, icono, tono = 'teal', to }) {
+/**
+ * Indicador numérico, siempre con puntas rectas. `to` lo convierte en link (ej.: a la lista filtrada).
+ * `estado` ('ok' | 'alerta' | 'error' | 'activo' | 'inactivo'): borde de 1 px del color del estado,
+ * agrega el círculo (late en ok y activo) y define el tono solo. Ver ESTADOS_KPI en clases.js.
+ * `compacto`: todo en una sola línea (etiqueta a la izquierda, valor a la derecha) y valor más chico.
+ *   Para filas donde los KPI comparten espacio con otras cards. Si no entra, la etiqueta se corta con …
+ */
+export function Kpi({ titulo, valor, decimales = 0, sufijo, detalle, icono, tono = 'teal', to, estado, compacto = false }) {
+  const estilo = ESTADOS_KPI[estado] || null;
+  if (estilo) tono = estilo.tono;
+
   const contenido = (
     <>
-      <span className={`${labelClass} flex items-center gap-2`}>
-        {icono && <FontAwesomeIcon icon={icono} className={TONOS_KPI[tono]} aria-hidden="true" />}
-        {titulo}
+      <span className={`${labelClass} flex min-w-0 items-center gap-2`} title={compacto ? titulo : undefined}>
+        {icono && <FontAwesomeIcon icon={icono} className={`flex-none ${TONOS_KPI[tono]}`} aria-hidden="true" />}
+        <span className={compacto ? 'truncate' : ''}>{titulo}</span>
       </span>
-      <span className="flex items-baseline gap-1.5">
-        <span className={`text-[34px] font-extrabold leading-none tabular-nums ${TONOS_KPI[tono]}`}>
+      <span className={`flex items-baseline gap-1.5 ${compacto ? 'flex-none' : ''}`}>
+        {estilo && (
+          <span className="relative flex h-3.5 w-3.5 flex-none self-center" aria-hidden="true">
+            {(estado === 'ok' || estado === 'activo') && (
+              <span className={`absolute inset-0 animate-ping rounded-full opacity-60 motion-reduce:hidden ${estilo.circulo}`} />
+            )}
+            <span className={`relative h-3.5 w-3.5 rounded-full ${estilo.circulo}`} />
+          </span>
+        )}
+        <span
+          className={`${compacto ? 'text-[18px]' : 'text-[34px]'} font-extrabold leading-none tabular-nums ${TONOS_KPI[tono]}`}
+        >
           {typeof valor === 'number' ? <AnimatedCounter value={valor} decimals={decimales} /> : valor}
         </span>
-        {sufijo && <span className="text-[15px] font-bold text-gray-500 dark:text-slate-400">{sufijo}</span>}
+        {sufijo && (
+          <span className={`${compacto ? 'text-[13px]' : 'text-[15px]'} font-bold text-gray-500 dark:text-slate-400`}>
+            {sufijo}
+          </span>
+        )}
       </span>
-      {detalle && <span className="text-[13px] font-medium text-gray-500 dark:text-slate-400">{detalle}</span>}
+      {detalle && !compacto && (
+        <span className="text-[13px] font-medium text-gray-500 dark:text-slate-400">{detalle}</span>
+      )}
     </>
   );
-  const clase = `${CARD} flex flex-col gap-2`;
+  const disposicion = compacto ? 'flex items-center justify-between gap-3' : 'flex flex-col gap-2';
+  // Con estado: fondo tinte sutil en modo claro (ESTADOS_KPI.fondo) y el fondo normal de card en oscuro
+  const base = estilo
+    ? `rounded-none ${estilo.fondo} dark:bg-slate-900/60 ${CARD_RELLENO} ${estilo.borde}`
+    : CARD_RECTA;
+  const clase = `${base} ${disposicion}`;
   return to ? (
     <Link to={to} className={`${clase} transition-transform hover:-translate-y-0.5`}>
       {contenido}
@@ -90,8 +122,10 @@ export function Kpi({ titulo, valor, decimales = 0, sufijo, detalle, icono, tono
 }
 
 /** Grilla de KPIs responsive */
-export function GrillaKpi({ children }) {
-  return <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">{children}</div>;
+const COLUMNAS_KPI = { 3: 'xl:grid-cols-3', 4: 'xl:grid-cols-4' };
+
+export function GrillaKpi({ columnas = 4, children }) {
+  return <div className={`grid grid-cols-1 gap-6 sm:grid-cols-2 ${COLUMNAS_KPI[columnas]}`}>{children}</div>;
 }
 
 /** Mensaje de estado de una consulta: cargando, error o vacío. Devuelve null si no hay nada que decir. */

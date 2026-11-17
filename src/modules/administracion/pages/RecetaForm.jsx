@@ -79,7 +79,7 @@ function Formulario({ receta }) {
   };
 
   return (
-    <form className="flex flex-col gap-4" onSubmit={guardar} noValidate>
+    <form className="flex flex-col gap-6" onSubmit={guardar} noValidate>
       <Encabezado
         titulo={receta ? `Receta ${receta.codigo_barra}` : 'Nueva receta'}
         descripcion="Maestro de tolvas"

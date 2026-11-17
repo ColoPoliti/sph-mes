@@ -153,7 +153,7 @@ export default function OrdenesRevisar() {
   );
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <Encabezado
         titulo="Órdenes a revisar"
         descripcion="Calidad controla las cantidades antes de que la orden salga a Elaboración."

@@ -112,11 +112,11 @@ export default function Dashboard() {
   const trabajando = activo && s.etapa < 6; // preparando, dosificando o etiqueta y agitado
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       {/* Encabezado del producto */}
       {/* Small y medium (< lg): producto arriba, línea divisoria y código de barras debajo. Desktop (lg): lado a lado */}
       {/* Borde izquierdo grueso con el verde del botón "Historial de elaboraciones" */}
-      <section className={`${CARD} flex flex-col gap-3 border-l-[6px] border-teal-600 lg:flex-row lg:items-center lg:justify-between lg:gap-x-6`}>
+      <section className={`${CARD} !rounded-none flex flex-col gap-3 border-l-[6px] border-teal-600 lg:flex-row lg:items-center lg:justify-between lg:gap-x-6`}>
         <div className="flex min-w-0 flex-col gap-1.5 lg:flex-1">
           <h1 className="m-0 sm:text-4xl font-extrabold leading-[1.15] [overflow-wrap:anywhere] text-xl">
             {r ? String(r.producto?.nombre || '').toUpperCase() : 'SIN LOTE'}
@@ -138,7 +138,7 @@ export default function Dashboard() {
         </div>
       </section>
 
-      <div className="flex flex-wrap items-stretch gap-4">
+      <div className="flex flex-wrap items-stretch gap-6">
         {/* Etapa y peso */}
         <section
           aria-label="Etapa y peso"
@@ -214,27 +214,28 @@ export default function Dashboard() {
             </div>
           </div>
 
+          {/* Barras de válvula y peso cargado: más chicas en celular (128 × 40 px), tamaño completo desde tablet */}
           <div className="flex flex-none gap-4">
             <div className="flex flex-col items-center gap-2">
               <span className={labelClass}>Válvula</span>
-              <div className="relative h-48 w-14 overflow-hidden rounded-lg bg-gray-200 dark:bg-slate-800 sm:h-[256px]">
+              <div className="relative h-32 w-10 overflow-hidden rounded-lg bg-gray-200 dark:bg-slate-800 sm:h-[256px] sm:w-14">
                 <div
                   className="absolute inset-x-0 bottom-0 rounded-md bg-violet-600 dark:bg-violet-500"
                   style={{ height: `${valv}%` }}
                 />
               </div>
-              <span className="text-xl font-bold"><AnimatedCounter value={valv} decimals={0} /> %</span>
+              <span className="text-base font-bold sm:text-xl"><AnimatedCounter value={valv} decimals={0} /> %</span>
             </div>
 
             <div className="flex flex-col items-center gap-2">
               <span className={labelClass}>Peso cargado</span>
-              <div className="relative h-48 w-14 overflow-hidden rounded-lg bg-gray-200 dark:bg-slate-800 sm:h-[256px]">
+              <div className="relative h-32 w-10 overflow-hidden rounded-lg bg-gray-200 dark:bg-slate-800 sm:h-[256px] sm:w-14">
                 <div
                   className="absolute inset-x-0 bottom-0 rounded-md bg-teal-600 dark:bg-teal-400"
                   style={{ height: `${carg}%` }}
                 />
               </div>
-              <span className="text-xl font-bold"><AnimatedCounter value={carg} decimals={0} /> %</span>
+              <span className="text-base font-bold sm:text-xl"><AnimatedCounter value={carg} decimals={0} /> %</span>
             </div>
           </div>
         </section>

@@ -60,7 +60,7 @@ export default function Ordenes() {
   );
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <Encabezado
         titulo="Órdenes de compra"
         icono={faFileInvoiceDollar}

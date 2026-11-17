@@ -96,7 +96,7 @@ function Formulario({ proveedores, materias, orden, mpInicial, usuario, navigate
   };
 
   return (
-    <form className="flex flex-col gap-4" onSubmit={(e) => e.preventDefault()}>
+    <form className="flex flex-col gap-6" onSubmit={(e) => e.preventDefault()}>
       <Encabezado
         titulo={orden ? `Editar ${orden.numero}` : 'Nueva orden de compra'}
         descripcion="La orden queda en borrador hasta enviarla a aprobación."

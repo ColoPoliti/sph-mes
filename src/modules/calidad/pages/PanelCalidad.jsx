@@ -28,7 +28,7 @@ export default function PanelCalidad() {
   const masAntiguos = [...pendientes].sort((a, b) => String(a.inicio).localeCompare(String(b.inicio))).slice(0, 8);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <Encabezado titulo="Panel de calidad" descripcion="Últimos 7 días de producción." icono={faClipboardCheck} />
 
       <GrillaKpi>

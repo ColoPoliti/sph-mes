@@ -1,6 +1,6 @@
 // Registro de módulos del MES.
 // Agregar un módulo = sumar una entrada acá + su carpeta en src/modules/<key> con routes.jsx.
-// El TopBar (pestañas), el Sidebar (menú) y la pantalla de inicio se arman solos con esta lista.
+// Las solapas / selector de módulos (ModuloNav), el Sidebar (menú) y la pantalla de inicio se arman solos con esta lista.
 import {
   faCartShopping,
   faClipboardList,

@@ -76,7 +76,7 @@ export default function EtiquetaDigital() {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
         <button
           type="button"
@@ -94,10 +94,10 @@ export default function EtiquetaDigital() {
       )}
 
       {!cargando && data && lote && (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-6">
           {/* Small y medium (< lg): producto arriba, línea divisoria y código de barras debajo. Desktop (lg): lado a lado */}
           {/* Borde izquierdo verde, igual que la card del lote en el monitor */}
-          <section className={`${CARD} flex flex-col gap-3 border-l-[6px] border-teal-600 lg:flex-row lg:items-center lg:justify-between lg:gap-x-6`}>
+          <section className={`${CARD} !rounded-none flex flex-col gap-3 border-l-[6px] border-teal-600 lg:flex-row lg:items-center lg:justify-between lg:gap-x-6`}>
             <div className="flex min-w-0 flex-col gap-1.5 lg:flex-1">
               <h1 className="m-0 text-2xl font-extrabold leading-[1.15] [overflow-wrap:anywhere] sm:text-[28px]">
                 {lote.nombre_producto}
@@ -118,7 +118,7 @@ export default function EtiquetaDigital() {
 
           {/* Card de datos (inicio, fin, tiempo, origen) y, al lado, card de acciones (switch y PDF).
               Mobile y tablet (< lg): una debajo de la otra */}
-          <div className="flex flex-col gap-4 lg:flex-row">
+          <div className="flex flex-col gap-6 lg:flex-row">
             {/* Mobile y tablet (< lg): datos apilados con una línea entre cada uno. Desde lg: en fila */}
             <section className={`${CARD} flex flex-col divide-y divide-gray-200 dark:divide-slate-800 lg:flex-1 lg:flex-row lg:flex-wrap lg:items-center lg:gap-x-12 lg:gap-y-4 lg:divide-y-0`}>
               <div className="flex flex-col gap-1 py-3 first:pt-0 last:pb-0 lg:py-0">

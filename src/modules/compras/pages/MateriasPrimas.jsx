@@ -35,7 +35,7 @@ export default function MateriasPrimas() {
     ]);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <Encabezado
         titulo="Materias primas"
         descripcion="Stock disponible (liberado por Calidad) y punto de pedido."

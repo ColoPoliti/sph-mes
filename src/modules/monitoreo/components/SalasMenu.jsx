@@ -58,7 +58,7 @@ export default function SalasMenu({ open, onNavegar }) {
                 onClick={() => toggleArea(area.key)}
                 aria-expanded={abierta}
                 aria-label={`${area.label} (${area.plcs.length} PLC)`}
-                className="flex min-h-10 -mx-2 w-[calc(100%+1rem)] cursor-pointer items-center gap-2 rounded-none bg-slate-300 px-4 py-2 text-left transition-colors hover:bg-slate-400/70 dark:bg-[#172033] dark:hover:bg-slate-800"
+                className="flex min-h-10 -mx-2 w-[calc(100%+1rem)] cursor-pointer items-center gap-2 rounded-none px-4 py-2 text-left transition-colors hover:bg-gray-100 dark:hover:bg-slate-800/50"
               >
                 <FontAwesomeIcon
                   icon={iconoArea(area.key)}
@@ -68,7 +68,7 @@ export default function SalasMenu({ open, onNavegar }) {
                 <span className="min-w-0 flex-1 truncate text-[11px] font-extrabold uppercase tracking-[1px] text-slate-800 dark:text-white">
                   {area.label}
                 </span>
-                <span className="whitespace-nowrap rounded-md bg-white px-2 py-0.5 text-[11px] font-extrabold text-slate-800 shadow-sm">
+                <span className="whitespace-nowrap rounded-md bg-gray-100 px-2 py-0.5 text-[11px] font-extrabold text-slate-700 dark:bg-slate-800 dark:text-slate-200">
                   {area.plcs.length} PLC
                 </span>
                 <IconChevron
@@ -80,7 +80,7 @@ export default function SalasMenu({ open, onNavegar }) {
             ) : (
               // Menú contraído: solo el ícono del área
               <div
-                className="-mx-2 flex justify-center rounded-none bg-slate-300 px-1 py-2 text-slate-800 dark:bg-[#172033] dark:text-white"
+                className="-mx-2 flex justify-center rounded-none px-1 py-2 text-slate-800 dark:text-white"
                 title={`${area.label} (${area.plcs.length} PLC)`}
               >
                 <FontAwesomeIcon icon={iconoArea(area.key)} className="text-base" aria-hidden="true" />
@@ -89,7 +89,8 @@ export default function SalasMenu({ open, onNavegar }) {
             )}
 
             {mostrarPlcs && (
-              <div className="flex flex-col pt-1">
+              // Menú expandido: PLC uno debajo del otro, con sangría a la izquierda
+              <div className={`flex flex-col pt-1 ${open ? 'ml-4' : ''}`}>
                 {area.plcs.map((plc) => {
                   const s = rooms[roomKey(area.key, plc)];
                   const activo = selectedKey === s.key && enMonitor;
@@ -106,47 +107,43 @@ export default function SalasMenu({ open, onNavegar }) {
                   return (
                     <div
                       key={s.key}
-                      className={`-mx-2 border-b border-slate-400 px-2 transition-colors dark:border-black ${
-                        open ? 'py-1' : 'flex justify-center py-1.5'
-                      } ${activo ? 'border-l-4 border-l-teal-600 bg-slate-900 pl-1 dark:border-l-teal-600 dark:bg-slate-900' : ''}`}
+                      className={`transition-colors ${
+                        open
+                          ? 'py-0.5'
+                          : `-mx-2 flex justify-center px-2 py-1.5 ${
+                              activo ? 'border-l-4 border-l-teal-600 bg-slate-900 pl-1 dark:border-l-teal-600 dark:bg-slate-900' : ''
+                            }`
+                      }`}
                     >
                       <button
                         type="button"
                         onClick={() => seleccionarSala(s.key)}
                         aria-current={activo ? 'true' : undefined}
                         aria-label={`PLC ${plc} · ${area.label} · ${estado}`}
-                        title={`PLC ${plc} · ${area.label}${open ? '' : ' · ' + estado}`}
+                        title={`PLC ${plc} · ${area.label} · ${estado}`}
                         className={`flex w-full cursor-pointer rounded-lg border-transparent transition-colors ${
                           open
-                            ? 'min-h-11 flex-col justify-center border-l-2 py-2 pl-4 pr-2 text-left'
+                            ? `min-h-10 items-center gap-3 py-2 pl-3 pr-2 text-left ${activo ? 'bg-slate-900' : ''}`
                             : 'h-11 items-center justify-center gap-1.5 border-2 px-1'
                         } ${activo ? '' : 'hover:bg-gray-100 dark:hover:bg-slate-800/60'}`}
                       >
                         {open ? (
+                          // Estado (color) y nombre en una sola línea; el texto del estado queda en el tooltip
                           <>
+                            {indicador}
                             <span
-                              className={`block w-full truncate text-[14px] font-extrabold ${
+                              className={`min-w-0 truncate text-[14px] font-normal ${
                                 activo ? 'text-white' : 'text-gray-600 dark:text-slate-300'
                               }`}
                             >
                               PLC {plc}
-                            </span>
-                            <span className="flex w-full min-w-0 items-center gap-2">
-                              {indicador}
-                              <span
-                                className={`truncate text-[12px] font-medium ${
-                                  activo ? 'text-white/85' : 'text-gray-500 dark:text-slate-400'
-                                }`}
-                              >
-                                {estado}
-                              </span>
                             </span>
                           </>
                         ) : (
                           <>
                             {indicador}
                             <span
-                              className={`whitespace-nowrap text-[10px] font-extrabold leading-none ${
+                              className={`whitespace-nowrap text-[10px] font-normal leading-none ${
                                 activo ? 'text-white' : 'text-gray-600 dark:text-slate-300'
                               }`}
                             >

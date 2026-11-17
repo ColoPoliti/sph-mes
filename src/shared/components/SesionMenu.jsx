@@ -11,8 +11,9 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { ROLES, cerrarSesion, useSesion } from '@/shared/lib/auth';
 
+// Botón de los 3 puntos: solo ícono, sin fondo ni borde (fondo suave al pasar el mouse o con el menú abierto)
 const BOTON =
-  'flex h-10 flex-none items-center gap-2 rounded-[10px] border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700';
+  'flex h-10 w-10 flex-none cursor-pointer items-center justify-center rounded-full text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white';
 const ITEM =
   'flex w-full cursor-pointer items-center gap-2.5 px-3.5 py-2.5 text-left text-sm font-semibold transition-colors hover:bg-gray-100 dark:hover:bg-slate-700';
 
@@ -101,7 +102,7 @@ export default function SesionMenu() {
         aria-expanded={abierto}
         aria-label="Opciones de sesión"
         title="Opciones de sesión"
-        className={`${BOTON} w-10 cursor-pointer justify-center px-0`}
+        className={`${BOTON} ${abierto ? 'bg-gray-100 text-gray-900 dark:bg-slate-800 dark:text-white' : ''}`}
       >
         <FontAwesomeIcon icon={faEllipsisVertical} aria-hidden="true" />
       </button>

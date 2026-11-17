@@ -127,7 +127,7 @@ export default function TolvasLinea() {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <Encabezado
         titulo="Tolvas por línea"
         descripcion="Tolvas en uso y en espera, en orden de prioridad"

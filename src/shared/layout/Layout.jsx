@@ -2,6 +2,7 @@ import { Suspense, useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Cargando from '@/shared/components/Cargando';
 import { useTituloVista } from '@/shared/hooks/useTituloVista';
+import { ModuloSelector, ModuloTabs } from './ModuloNav';
 import Sidebar from './Sidebar';
 import StatusBar from './StatusBar';
 import TopBar from './TopBar';
@@ -20,6 +21,20 @@ export default function Layout() {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, []);
+
+  // Clic fuera del menú lateral: lo cierra (en escritorio queda contraído a íconos).
+  // Se ignoran los clics en el propio menú y en los botones que lo abren/cierran (aria-controls).
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    const onPointerDown = (e) => {
+      const menu = document.getElementById('menu-lateral');
+      if (menu?.contains(e.target)) return;
+      if (e.target.closest?.('[aria-controls="menu-lateral"]')) return;
+      setMenuOpen(false);
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => document.removeEventListener('pointerdown', onPointerDown);
+  }, [menuOpen]);
 
   // Título de la pestaña del navegador
   useEffect(() => {
@@ -46,18 +61,26 @@ export default function Layout() {
           onToggle={() => setMenuOpen((v) => !v)}
         />
 
-        <main className="h-full min-w-0 flex-1 overflow-y-auto bg-slate-200 p-4 dark:bg-slate-950">
-          {/* Mobile: nombre de la vista en un badge arriba del contenido (en el TopBar se oculta para centrar el logo) */}
-          <div className="mb-3 flex sm:hidden">
-            <span className="inline-flex min-w-0 items-center rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-gray-900 shadow-md dark:border-white dark:shadow-none">
-              <span className="truncate text-[13px] font-extrabold leading-tight">{titulo}</span>
-            </span>
-          </div>
-          {/* Las páginas de cada módulo se cargan bajo demanda (React.lazy) */}
-          <Suspense key={pathname.split('/')[1]} fallback={<Cargando />}>
-            <Outlet />
-          </Suspense>
-        </main>
+        {/* Columna de contenido: solapas (escritorio) + página. Al estar al lado del menú
+            lateral, las solapas se corren cuando el menú se expande o se contrae. */}
+        <div className="flex min-w-0 flex-1 flex-col">
+          <ModuloTabs className="hidden lg:block" />
+
+          <main className="textura-fondo min-h-0 min-w-0 flex-1 overflow-y-auto bg-slate-200 p-4 sm:p-6 dark:bg-slate-950">
+            {/* Celular / tablet: selector de módulo y, en celular, el nombre de la vista
+              (en el TopBar se oculta para centrar el logo) */}
+            <div className="mb-3 flex min-w-0 items-center gap-2 lg:hidden">
+              <ModuloSelector className="flex" />
+              <span className="inline-flex min-w-0 items-center rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-gray-900 shadow-md dark:border-white dark:shadow-none sm:hidden">
+                <span className="truncate text-[13px] font-extrabold leading-tight">{titulo}</span>
+              </span>
+            </div>
+            {/* Las páginas de cada módulo se cargan bajo demanda (React.lazy) */}
+            <Suspense key={pathname.split('/')[1]} fallback={<Cargando />}>
+              <Outlet />
+            </Suspense>
+          </main>
+        </div>
       </div>
 
       <StatusBar />

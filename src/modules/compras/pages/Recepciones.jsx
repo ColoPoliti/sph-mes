@@ -6,7 +6,7 @@ import TablaRecepciones from '../components/TablaRecepciones';
 export default function Recepciones() {
   const { recepciones, mp, orden, cargando, error } = useDatosCompras();
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <Encabezado titulo="Recepciones" descripcion="Ingresos de materia prima y su dictamen de Calidad." icono={faTruckRampBox} />
       <Card className="flex flex-col gap-3">
         <EstadoConsulta cargando={cargando} error={error} vacio={!recepciones.length} textoVacio="Todavía no se recibió ninguna orden." />

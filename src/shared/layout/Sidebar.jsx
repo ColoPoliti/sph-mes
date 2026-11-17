@@ -3,65 +3,52 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { moduloDeRuta } from '@/app/modulos';
 import SalasMenu from '@/modules/monitoreo/components/SalasMenu';
 import logoFoot from '@/assets/logo-foot.png';
-import ModuloNav from './ModuloNav';
 
 const esMovil = () =>
   typeof window !== 'undefined' && window.matchMedia('(max-width: 1023px)').matches;
 
 /**
  * Ítem del menú lateral (mismo diseño que "Historial de elaboraciones" del monitor original):
- * título arriba y, abajo, el ícono con un subtítulo. Activo = fila slate oscura con borde teal.
+ * Ícono y título en una línea (el subtítulo va en el tooltip). Íconos sin color, del mismo tono que el texto.
+ * Activo = fila slate oscura con borde teal.
  */
-function MenuItem({ item, open, onNavegar }) {
+function MenuItem({ item, open, onNavegar, separado = false }) {
   return (
     <NavLink
       to={item.to}
       end={item.end}
       onClick={onNavegar}
-      title={item.label}
+      title={item.sub ? `${item.label} · ${item.sub}` : item.label}
       aria-label={item.sub ? `${item.label} · ${item.sub}` : item.label}
       className={({ isActive }) =>
-        `-mx-2 block border-b border-slate-400 px-2 transition-colors dark:border-black ${
-          open ? 'py-1' : 'flex justify-center py-1.5'
-        } ${
-          isActive
-            ? 'border-l-4 border-l-teal-600 bg-slate-900 pl-1 dark:border-l-teal-600 dark:bg-slate-900'
-            : 'bg-slate-100 hover:bg-gray-200/70 dark:bg-slate-900/50 dark:hover:bg-slate-800/60'
+        `-mx-2 block px-2 transition-colors ${open ? 'py-1' : 'flex justify-center py-1.5'
+        } ${separado ? 'mt-1 border-y border-gray-200 dark:border-white/[.06]' : ''} ${isActive
+          ? 'border-l-4 border-l-teal-600 bg-slate-900 pl-1 dark:border-l-teal-600 dark:bg-slate-900'
+          : 'hover:bg-gray-100 dark:hover:bg-slate-800/50'
         }`
       }
     >
       {({ isActive }) =>
         open ? (
-          <span className="flex min-h-11 w-full flex-col justify-center rounded-lg py-2 pl-4 pr-2 text-left">
+          // Ícono y título en una sola línea (el subtítulo queda en el tooltip)
+          <span className="flex min-h-11 w-full min-w-0 items-center gap-3 py-2 pl-3 pr-2 text-left">
+            <FontAwesomeIcon
+              icon={item.icono}
+              className={`w-4 flex-none text-sm ${isActive ? 'text-white' : 'text-gray-600 dark:text-slate-300'}`}
+              aria-hidden="true"
+            />
             <span
-              className={`block w-full truncate text-[14px] font-extrabold ${
-                isActive ? 'text-white' : 'text-gray-600 dark:text-slate-300'
-              }`}
+              className={`min-w-0 truncate text-[14px] font-normal ${isActive ? 'text-white' : 'text-gray-600 dark:text-slate-300'
+                }`}
             >
               {item.label}
             </span>
-            {item.sub && (
-              <span className="flex w-full min-w-0 items-center gap-2">
-                <FontAwesomeIcon
-                  icon={item.icono}
-                  className="w-3 flex-none text-[10px] text-teal-600 dark:text-teal-400"
-                  aria-hidden="true"
-                />
-                <span
-                  className={`truncate text-[12px] font-medium ${
-                    isActive ? 'text-white/85' : 'text-gray-500 dark:text-slate-400'
-                  }`}
-                >
-                  {item.sub}
-                </span>
-              </span>
-            )}
           </span>
         ) : (
           <span className="flex h-11 w-full items-center justify-center px-1">
             <FontAwesomeIcon
               icon={item.icono}
-              className={`text-base ${isActive ? 'text-teal-400' : 'text-teal-600 dark:text-teal-400'}`}
+              className={`text-base ${isActive ? 'text-white' : 'text-gray-600 dark:text-slate-300'}`}
               aria-hidden="true"
             />
           </span>
@@ -80,18 +67,18 @@ export default function Sidebar({ open, onClose, onToggle }) {
   };
 
   return (
+    // Modo claro: sin borde derecho, con sombra hacia la derecha. Modo oscuro: borde derecho y sin sombra.
+    // En escritorio es relative + z-[5] para que la sombra quede por encima del contenido.
     <aside
       id="menu-lateral"
       aria-label={`Menú de ${modulo.label}`}
-      className={`${
-        open ? 'flex w-[280px] lg:w-64' : 'hidden lg:flex lg:w-[88px]'
-      } fixed bottom-0 left-0 top-[72px] z-30 flex-col overflow-hidden border-r border-slate-400 bg-white shadow-md dark:border-slate-900 dark:bg-slate-950 dark:shadow-none transition-[width] duration-200 lg:static lg:bottom-auto lg:top-auto lg:z-auto lg:h-full lg:flex-none`}
+      className={`${open ? 'flex w-[280px] lg:w-64' : 'hidden lg:flex lg:w-[88px]'
+        } textura-fondo fixed bottom-0 left-0 top-[72px] z-30 flex-col overflow-hidden bg-white shadow-[4px_0_16px_-4px_rgba(15,23,42,0.18)] dark:border-r dark:border-slate-900 dark:bg-slate-950 dark:shadow-none transition-[width] duration-200 lg:relative lg:bottom-auto lg:top-auto lg:z-[5] lg:h-full lg:flex-none`}
     >
       {/* Encabezado: nombre del módulo y flecha para contraer o expandir el menú */}
       <div
-        className={`flex h-14 flex-none items-center border-b border-slate-400 dark:border-black ${
-          open ? 'justify-between px-4' : 'justify-center px-2'
-        }`}
+        className={`flex h-14 flex-none items-center border-b border-gray-200 dark:border-white/[.06] ${open ? 'justify-between px-4' : 'justify-center px-2'
+          }`}
       >
         {open && (
           <span className="flex min-w-0 items-center gap-2 truncate text-[11px] font-extrabold uppercase tracking-[1.6px] text-gray-500 dark:text-slate-400">
@@ -123,25 +110,19 @@ export default function Sidebar({ open, onClose, onToggle }) {
       </div>
 
       <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2 pb-3">
-        {/* Mobile / tablet: cambio de módulo (en escritorio están las pestañas del TopBar) */}
-        {open && (
-          <div className="-mx-2 border-b border-slate-400 px-3 py-3 dark:border-black xl:hidden">
-            <ModuloNav vertical className="flex" onNavegar={cerrarSiMovil} />
-          </div>
-        )}
+        {/* Monitoreo: primero el árbol de áreas y PLC, y debajo los ítems del módulo (ej.: Historial de elaboraciones) */}
+        {modulo.menuSalas && <SalasMenu open={open} onNavegar={cerrarSiMovil} />}
 
         {modulo.menu.map((item) => (
-          <MenuItem key={item.to} item={item} open={open} onNavegar={cerrarSiMovil} />
+          // En Monitoreo los ítems llevan borde arriba y abajo sutil, para diferenciarlos del árbol de PLC
+          <MenuItem key={item.to} item={item} open={open} onNavegar={cerrarSiMovil} separado={modulo.menuSalas} />
         ))}
-
-        {modulo.menuSalas && <SalasMenu open={open} onNavegar={cerrarSiMovil} />}
       </nav>
 
       {/* Logo al pie, como el sidebar original */}
       <div
-        className={`flex flex-none items-center border-t border-slate-400 dark:border-black py-4 ${
-          open ? 'justify-start gap-2.5 px-4' : 'justify-center px-2'
-        }`}
+        className={`flex flex-none items-center border-t border-gray-200 dark:border-white/[.06] py-4 ${open ? 'justify-start gap-2.5 px-4' : 'justify-center px-2'
+          }`}
       >
         <img src={logoFoot} alt="industria 4" className="h-7 w-7 flex-shrink-0 object-contain" />
         {open && (
