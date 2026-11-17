@@ -6,8 +6,13 @@ organizado en módulos independientes.
 
 | Módulo | Ruta | Qué hace | Acceso |
 | --- | --- | --- | --- |
+| **Programación** | `/programacion` | Órdenes de producción leídas de Bejerman, agrupadas por línea; Producción/admin cambian la prioridad o reasignan la línea | `programacion.ver` |
 | **Monitoreo** | `/monitoreo` | Salas/PLC en vivo por MQTT, receta en curso, gráfico de peso, historial y etiqueta digital (todo lo del monitor original) | Libre |
-| **Calidad** | `/calidad` | Panel con indicadores, bandeja de lotes a liberar (aprobar/rechazar), inspección de materia prima recibida y registro de decisiones exportable | `calidad.ver` |
+| **Administración** | `/administracion` | Maestro de tolvas: receta (alcohol, colorante, glicerina, agua, esencia) de cada producto a partir de su código | `admin.ver` |
+| **Calidad** | `/calidad` | Panel con indicadores, revisión de cantidades de las órdenes de producción (antes de Elaboración), bandeja de lotes a liberar (aprobar/rechazar), inspección de materia prima recibida y registro de decisiones exportable | `calidad.ver` |
+| **Elaboración** | `/elaboracion` | Cola por línea de las órdenes con cantidades aprobadas por Calidad, en orden de prioridad, con la receta escalada a la tolva (250/1000 kg) | `elaboracion.ver` |
+| **Producción** | `/produccion` | Tolvas de cada línea: en uso, en espera por prioridad (con estado de Calidad) y cambio de tolva escaneando el código, validando que sea la que sigue | `produccion.ver` |
+| **Auditoría** | `/auditoria` | Control documental de cada tolva aprobada por Calidad (orden, lavado, lote del PLC, aprobación); no bloquea el uso | `auditoria.ver` |
 | **Compras** | `/compras` | Órdenes de compra (borrador → aprobación → recepción), proveedores, stock de materias primas con punto de pedido y recepciones | `compras.ver` |
 
 Los módulos están conectados como en planta:
@@ -34,9 +39,13 @@ Por defecto usuario = contraseña:
 | Usuario | Perfil | Puede |
 | --- | --- | --- |
 | `admin` | Administrador | Todo, incluida la aprobación de órdenes de compra |
+| `produccion` | Producción | Cambiar la prioridad de las órdenes de producción y reasignarlas de línea |
+| `elaborador` | Elaborador | Ver la cola de órdenes a elaborar con su receta y asignarles tolvas (escaneo, regla de lavado) |
+| `linea` | Línea | Cambio de tolva en su línea y marcar tolvas vacías |
+| `auditoria` | Auditoría | Registrar el control documental de cada tolva |
 | `calidad` | Calidad | Aprobar/rechazar lotes e ingresos de MP |
 | `compras` | Compras | Crear/editar OC, proveedores, registrar recepciones |
-| `usuario` | Consulta | Ver Calidad y Compras sin modificar |
+| `usuario` | Consulta | Ver Programación, Calidad y Compras sin modificar |
 
 Los permisos se definen en un solo lugar (`PERMISOS` en `auth.js`) y las pantallas preguntan
 por permiso (`puede('compras.editar')`), nunca por rol.
@@ -60,6 +69,11 @@ src/
     lib/                 auth (sesión + permisos), http (cliente fetch), almacen (repositorio
                          localStorage provisorio), alertas (SweetAlert + toasts), csv, format, estados
   modules/
+    programacion/        lib/api.js (órdenes de Bejerman + prioridad/línea), pages/Ordenes
+    administracion/      lib/api.js (maestro de tolvas), pages/ (Recetas, RecetaForm)
+    elaboracion/         pages/OrdenesElaborar (cola de órdenes aprobadas, receta por tolva)
+    produccion/          pages/TolvasLinea (tolvas por línea, cambio de tolva)
+    auditoria/           lib/api.js (controles), pages/TolvasControlar
     monitoreo/           config.js (salas/PLC), MonitorContext (MQTT), lib/ (api, demo, rooms, pdf),
                          components/ (SalasMenu, PesoChart), pages/ (Dashboard, Historial, EtiquetaDigital)
     calidad/             lib/ (aprobaciones, modales, hooks), pages/ (Panel, LotesPendientes,
@@ -88,6 +102,12 @@ Imports con alias: `@/` = `src/` (configurado en `vite.config.js` y `jsconfig.js
 
 | Qué | Hoy | Dónde reemplazar |
 | --- | --- | --- |
+| Órdenes de producción | Endpoint `/ordenes_produccion.php` (consulta a la base de Bejerman) **pendiente** | `modules/programacion/lib/api.js` |
+| Prioridad y línea de las órdenes | `localStorage` | `leer`/`guardar` en `modules/programacion/lib/api.js` |
+| Revisión de cantidades de las órdenes (Calidad) | `localStorage` | `modules/programacion/lib/revision.js` |
+| Estado de las tolvas físicas (asignación, en línea, vacía) | `localStorage` | `shared/lib/tolvas.js` |
+| Controles de Auditoría | `localStorage` | `modules/auditoria/lib/api.js` |
+| Maestro de tolvas (recetas) | `localStorage`, sin datos de ejemplo | cuerpo de cada función de `modules/administracion/lib/api.js` |
 | Login | Credenciales en el navegador | `validarCredenciales` en `shared/lib/auth.js` |
 | Decisiones de Calidad sobre lotes | `localStorage` | `modules/calidad/lib/aprobaciones.js` |
 | Compras (OC, proveedores, MP, recepciones) | `localStorage` con datos de ejemplo | cuerpo de cada función de `modules/compras/lib/api.js` → `http.get/post/put` |

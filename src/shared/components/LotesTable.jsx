@@ -17,6 +17,7 @@ const TD = 'px-1.5 py-2 align-middle text-[15px] font-medium';
 // Se llama con (fila, encendido). onInfo (opcional): columna "Info" que abre los datos del lote.
 // soloLectura: muestra el switch pero no deja cambiarlo (perfil usuario).
 // rutaLote: arma el link del Id (cada módulo puede abrir la etiqueta dentro de su propia sección).
+// columnasExtra (opcional): [{ titulo, celda: (fila) => nodo, className }] antes de "Estado".
 export default function LotesTable({
   filas,
   conSala = false,
@@ -25,6 +26,7 @@ export default function LotesTable({
   onInfo,
   soloLectura = false,
   rutaLote = (id) => `/monitoreo/lotes/${id}`,
+  columnasExtra = [],
 }) {
   return (
     <div className="overflow-x-auto">
@@ -44,6 +46,11 @@ export default function LotesTable({
             <th scope="col" className={`${TH} text-left`}>Inicio</th>
             <th scope="col" className={`${TH} text-left`}>Fin</th>
             <th scope="col" className={`${TH} text-right`}>Total</th>
+            {columnasExtra.map((c) => (
+              <th key={c.titulo} scope="col" className={`${TH} ${c.className || 'text-left'}`}>
+                {c.titulo}
+              </th>
+            ))}
             <th scope="col" className={`${TH} text-right`}>Estado</th>
             {onAprobar && <th scope="col" className={`${TH} text-center`}>Aprobar</th>}
             {onInfo && <th scope="col" className={`${TH} text-center`}>Info</th>}
@@ -83,6 +90,11 @@ export default function LotesTable({
                   <FontAwesomeIcon icon={faClock} className="mr-1.5 text-gray-400 dark:text-slate-500" />
                   {mmss(r.tiempo_total_s)}
                 </td>
+                {columnasExtra.map((c) => (
+                  <td key={c.titulo} className={`${TD} whitespace-nowrap ${c.className || ''}`}>
+                    {c.celda(r)}
+                  </td>
+                ))}
                 <td className={`${TD} whitespace-nowrap text-right`}>
                   <ChipEstado estado={r.estado} />
                 </td>

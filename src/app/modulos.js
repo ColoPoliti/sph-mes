@@ -3,6 +3,12 @@
 // El TopBar (pestañas), el Sidebar (menú) y la pantalla de inicio se arman solos con esta lista.
 import {
   faCartShopping,
+  faClipboardList,
+  faFlask,
+  faGears,
+  faWarehouse,
+  faUserCheck,
+  faScrewdriverWrench,
   faClipboardCheck,
   faClockRotateLeft,
   faFileInvoiceDollar,
@@ -17,12 +23,46 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 /**
- * key        primer segmento de la ruta (/monitoreo, /calidad, /compras)
+ * key        primer segmento de la ruta (/programacion, /calidad, /elaboracion, /monitoreo, /produccion, /auditoria, /compras, /administracion)
  * permiso    permiso necesario para entrar (null = público). Ver PERMISOS en shared/lib/auth.js
  * menu       ítems del sidebar: { to, label, sub, icono, end }
  * menuSalas  true: el sidebar agrega el árbol de salas/PLC (en vivo) debajo de los ítems
  */
 export const MODULOS = [
+  {
+    key: 'programacion',
+    label: 'Programación',
+    descripcion: 'Órdenes de producción leídas de Bejerman y su prioridad por línea.',
+    icono: faClipboardList,
+    permiso: 'programacion.ver',
+    menu: [
+      { to: '/programacion', label: 'Órdenes de producción', sub: 'Prioridad por línea', icono: faClipboardList, end: true },
+    ],
+  },
+  {
+    key: 'calidad',
+    label: 'Calidad',
+    descripcion: 'Revisión de cantidades de las órdenes, liberación de lotes elaborados e inspección de materia prima.',
+    icono: faClipboardCheck,
+    permiso: 'calidad.ver',
+    menu: [
+      { to: '/calidad', label: 'Panel de calidad', sub: 'Indicadores', icono: faGaugeHigh, end: true },
+      { to: '/calidad/ordenes', label: 'Órdenes a revisar', sub: 'Cantidades antes de elaborar', icono: faClipboardList },
+      { to: '/calidad/pendientes', label: 'Lotes a liberar', sub: 'Producción sin revisar', icono: faListCheck },
+      { to: '/calidad/ingresos', label: 'Ingresos de MP', sub: 'Recepciones a inspeccionar', icono: faFlaskVial },
+      { to: '/calidad/decisiones', label: 'Registro de decisiones', sub: 'Aprobados y rechazados', icono: faClockRotateLeft },
+    ],
+  },
+  {
+    key: 'elaboracion',
+    label: 'Elaboración',
+    descripcion: 'Órdenes aprobadas por Calidad, por línea y prioridad, con la receta para cada tolva.',
+    icono: faGears,
+    permiso: 'elaboracion.ver',
+    menu: [
+      { to: '/elaboracion', label: 'Órdenes a elaborar', sub: 'Cola por línea', icono: faGears, end: true },
+    ],
+  },
   {
     key: 'monitoreo',
     label: 'Monitoreo',
@@ -35,16 +75,23 @@ export const MODULOS = [
     ],
   },
   {
-    key: 'calidad',
-    label: 'Calidad',
-    descripcion: 'Liberación de lotes de producción e inspección de materia prima recibida.',
-    icono: faClipboardCheck,
-    permiso: 'calidad.ver',
+    key: 'produccion',
+    label: 'Producción',
+    descripcion: 'Tolvas de cada línea: en uso, en espera por prioridad y cambio de tolva con lectura del código.',
+    icono: faWarehouse,
+    permiso: 'produccion.ver',
     menu: [
-      { to: '/calidad', label: 'Panel de calidad', sub: 'Indicadores', icono: faGaugeHigh, end: true },
-      { to: '/calidad/pendientes', label: 'Lotes a liberar', sub: 'Producción sin revisar', icono: faListCheck },
-      { to: '/calidad/ingresos', label: 'Ingresos de MP', sub: 'Recepciones a inspeccionar', icono: faFlaskVial },
-      { to: '/calidad/decisiones', label: 'Registro de decisiones', sub: 'Aprobados y rechazados', icono: faClockRotateLeft },
+      { to: '/produccion', label: 'Tolvas por línea', sub: 'Cambio de tolva', icono: faWarehouse, end: true },
+    ],
+  },
+  {
+    key: 'auditoria',
+    label: 'Auditoría',
+    descripcion: 'Control documental de cada tolva aprobada por Calidad que salió a Producción.',
+    icono: faUserCheck,
+    permiso: 'auditoria.ver',
+    menu: [
+      { to: '/auditoria', label: 'Tolvas a controlar', sub: 'Control documental', icono: faUserCheck, end: true },
     ],
   },
   {
@@ -59,6 +106,16 @@ export const MODULOS = [
       { to: '/compras/materias-primas', label: 'Materias primas', sub: 'Stock y punto de pedido', icono: faBoxesStacked },
       { to: '/compras/proveedores', label: 'Proveedores', sub: 'Padrón', icono: faTruckField },
       { to: '/compras/recepciones', label: 'Recepciones', sub: 'Ingresos y dictamen de calidad', icono: faTruckRampBox },
+    ],
+  },
+  {
+    key: 'administracion',
+    label: 'Administración',
+    descripcion: 'Maestro de tolvas: receta de cada producto a partir de su código.',
+    icono: faScrewdriverWrench,
+    permiso: 'admin.ver',
+    menu: [
+      { to: '/administracion/tolvas', label: 'Maestro de tolvas', sub: 'Recetas por código', icono: faFlask },
     ],
   },
 ];

@@ -1,16 +1,20 @@
 // Sesión y permisos del MES.
 //
 // Perfiles:
-//   admin    -> todo
-//   calidad  -> aprueba/rechaza lotes de producción e ingresos de materia prima
-//   compras  -> gestiona proveedores, materias primas y órdenes de compra
-//   usuario  -> solo consulta
+//   admin      -> todo
+//   produccion -> prioridad de las órdenes de producción y cambio de línea
+//   elaborador -> ve la cola de órdenes a elaborar con su receta y les asigna tolvas
+//   linea      -> tolvas de su línea: cambio de tolva (con lectura del código) y tolva vacía
+//   auditoria  -> control documental de cada tolva en Producción (no bloquea el uso)
+//   calidad    -> aprueba/rechaza lotes de producción e ingresos de materia prima
+//   compras    -> gestiona proveedores, materias primas y órdenes de compra
+//   usuario    -> solo consulta
 //
 // PROVISORIO: las credenciales se validan acá, en el navegador. Cuando exista el
 // login real (ej.: login.php contra la base), reemplazar SOLO el cuerpo de
 // validarCredenciales por esa consulta (debe devolver el perfil o null).
 // Mientras tanto se toman de .env.local y, si no están definidas, usuario = clave:
-//   admin / admin · calidad / calidad · compras / compras · usuario / usuario
+//   admin / admin · produccion / produccion · elaborador / elaborador · linea / linea · auditoria / auditoria · calidad / calidad · compras / compras · usuario / usuario
 
 import { useSyncExternalStore } from 'react';
 
@@ -18,6 +22,10 @@ const CLAVE_SESION = 'sph-mes-sesion';
 
 export const ROLES = {
   admin: 'Administrador',
+  produccion: 'Producción (programación)',
+  elaborador: 'Elaborador',
+  linea: 'Línea',
+  auditoria: 'Auditoría',
   calidad: 'Calidad',
   compras: 'Compras',
   usuario: 'Consulta',
@@ -25,11 +33,21 @@ export const ROLES = {
 
 // Permiso -> perfiles que lo tienen. Los módulos y las acciones preguntan por permiso, nunca por rol.
 export const PERMISOS = {
+  'programacion.ver': ['admin', 'produccion', 'usuario'],
+  'programacion.priorizar': ['admin', 'produccion'],
+  'elaboracion.ver': ['admin', 'produccion', 'elaborador', 'usuario'],
+  'elaboracion.operar': ['admin', 'elaborador'],
+  'produccion.ver': ['admin', 'produccion', 'linea', 'usuario'],
+  'produccion.operar': ['admin', 'linea'],
+  'auditoria.ver': ['admin', 'auditoria', 'usuario'],
+  'auditoria.registrar': ['admin', 'auditoria'],
   'calidad.ver': ['admin', 'calidad', 'usuario'],
   'calidad.aprobar': ['admin', 'calidad'],
   'compras.ver': ['admin', 'compras', 'usuario'],
   'compras.editar': ['admin', 'compras'],
   'compras.aprobar': ['admin'],
+  'admin.ver': ['admin'],
+  'admin.editar': ['admin'],
 };
 
 export const puede = (rol, permiso) => Boolean(rol) && (PERMISOS[permiso] || []).includes(rol);

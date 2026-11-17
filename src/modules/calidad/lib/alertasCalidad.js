@@ -13,6 +13,9 @@ const nombreLote = (f) => esc(f.nombre_producto);
 
 // Cómo se nombra el registro en los títulos ("lote #1052"); otros módulos pasan fila.ref (ej.: "ingreso REC-0003")
 const ref = (f) => f.ref || `lote #${f.id}`;
+// Artículo según el género del registro (fila.femenino: "la orden 1052")
+const el = (f) => (f.femenino ? 'la' : 'el');
+const del = (f) => (f.femenino ? 'de la' : 'del');
 
 /**
  * Pregunta qué hacer con el lote: Aprobar / Rechazar / Cancelar.
@@ -34,7 +37,7 @@ export async function preguntarDecision(fila) {
 
   const r = await alerta.fire({
     icon: 'question',
-    title: `¿Desea aprobar el ${ref(fila)}?`,
+    title: `¿Desea aprobar ${el(fila)} ${ref(fila)}?`,
     html: nombreLote(fila) + avisoRechazo,
     showDenyButton: true,
     showCancelButton: true,
@@ -70,7 +73,7 @@ export async function preguntarDecision(fila) {
 export async function confirmarQuitarAprobacion(fila) {
   const r = await alerta.fire({
     icon: 'warning',
-    title: `¿Quitar la aprobación del ${ref(fila)}?`,
+    title: `¿Quitar la aprobación ${del(fila)} ${ref(fila)}?`,
     html: nombreLote(fila),
     showCancelButton: true,
     confirmButtonText: 'Quitar aprobación',

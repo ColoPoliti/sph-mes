@@ -1,6 +1,7 @@
 import { lazy } from 'react';
 
 const PanelCalidad = lazy(() => import('./pages/PanelCalidad'));
+const OrdenesRevisar = lazy(() => import('./pages/OrdenesRevisar'));
 const LotesPendientes = lazy(() => import('./pages/LotesPendientes'));
 const Decisiones = lazy(() => import('./pages/Decisiones'));
 const IngresosMP = lazy(() => import('./pages/IngresosMP'));
@@ -11,6 +12,7 @@ const SUB = 'Calidad';
 
 export const rutasCalidad = [
   { index: true, element: <PanelCalidad />, handle: { titulo: 'Panel de calidad', sub: SUB } },
+  { path: 'ordenes', element: <OrdenesRevisar />, handle: { titulo: 'Órdenes a revisar', sub: SUB } },
   { path: 'pendientes', element: <LotesPendientes />, handle: { titulo: 'Lotes a liberar', sub: SUB } },
   { path: 'ingresos', element: <IngresosMP />, handle: { titulo: 'Ingresos de materia prima', sub: SUB } },
   { path: 'decisiones', element: <Decisiones />, handle: { titulo: 'Registro de decisiones', sub: SUB } },

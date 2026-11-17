@@ -27,7 +27,7 @@ export default function Inicio() {
         <p className={`m-0 ${subClass}`}>
           {usuario
             ? `Sesión iniciada como ${usuario} (${ROLES[rol] || rol}).`
-            : 'Monitoreo es de libre consulta. Para Calidad y Compras iniciá sesión.'}
+            : 'Monitoreo es de libre consulta. Para el resto de los módulos iniciá sesión.'}
         </p>
       </div>
 
