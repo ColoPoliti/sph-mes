@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import AnimatedCounter from './AnimatedCounter';
 import { labelClass, subClass } from './ui';
 
-import { CARD, CARD_RECTA, CARD_RELLENO, CAMPO, ESTADOS_KPI } from './clases';
+import { CARD, CARD_RELLENO, CAMPO, ESTADOS_KPI } from './clases';
 
 // ---------- Componentes ----------
 
@@ -65,7 +65,7 @@ const TONOS_KPI = {
 };
 
 /**
- * Indicador numérico, siempre con puntas rectas. `to` lo convierte en link (ej.: a la lista filtrada).
+ * Indicador numérico. `to` lo convierte en link (ej.: a la lista filtrada).
  * `estado` ('ok' | 'alerta' | 'error' | 'activo' | 'inactivo'): borde de 1 px del color del estado,
  * agrega el círculo (late en ok y activo) y define el tono solo. Ver ESTADOS_KPI en clases.js.
  * `compacto`: todo en una sola línea (etiqueta a la izquierda, valor a la derecha) y valor más chico.
@@ -109,8 +109,8 @@ export function Kpi({ titulo, valor, decimales = 0, sufijo, detalle, icono, tono
   const disposicion = compacto ? 'flex items-center justify-between gap-3' : 'flex flex-col gap-2';
   // Con estado: fondo tinte sutil en modo claro (ESTADOS_KPI.fondo) y el fondo normal de card en oscuro
   const base = estilo
-    ? `rounded-none ${estilo.fondo} dark:bg-slate-900/60 ${CARD_RELLENO} ${estilo.borde}`
-    : CARD_RECTA;
+    ? `rounded-md ${estilo.fondo} dark:bg-slate-900/60 ${CARD_RELLENO} ${estilo.borde}`
+    : CARD;
   const clase = `${base} ${disposicion}`;
   return to ? (
     <Link to={to} className={`${clase} transition-transform hover:-translate-y-0.5`}>

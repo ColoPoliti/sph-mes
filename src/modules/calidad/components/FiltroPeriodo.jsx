@@ -7,7 +7,7 @@ import { CONFIG } from '@/modules/monitoreo/config';
 export default function FiltroPeriodo({ periodo, setPeriodo, children }) {
   const cambiar = (k) => (e) => setPeriodo((p) => ({ ...p, [k]: e.target.value }));
   return (
-    <Card as="div" className="flex flex-wrap items-end gap-x-[18px] gap-y-3.5 !rounded-none">
+    <Card as="div" className="flex flex-wrap items-end gap-x-[18px] gap-y-3.5">
       <div className="basis-full">
         <CardTitulo icono={faFilter}>Filtros</CardTitulo>
       </div>

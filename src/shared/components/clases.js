@@ -4,10 +4,8 @@
 // Sombra y relleno comunes; el fondo y la forma (puntas) los define cada variante.
 export const CARD_RELLENO = 'shadow-md dark:shadow-none px-4 py-[18px] sm:px-[22px]';
 const CARD_BASE = `bg-white/70 dark:bg-slate-900/60 ${CARD_RELLENO}`;
-/** Card estándar, con puntas redondeadas. */
-export const CARD = `rounded-[14px] ${CARD_BASE}`;
-/** Card con puntas rectas (encabezado de Inicio, todos los KPI). */
-export const CARD_RECTA = `rounded-none ${CARD_BASE}`;
+/** Card estándar, con puntas redondeadas (también los KPI). */
+export const CARD = `rounded-md ${CARD_BASE}`;
 /**
  * Estados de los KPI: borde de 1 px de la card, círculo y tono del valor.
  * `fondo`: tinte sutil del color del estado, solo en modo claro (en oscuro queda el fondo normal de las cards).
@@ -27,7 +25,7 @@ export const ESTADOS_KPI = {
     tono: 'ambar',
     borde: 'border border-amber-500 dark:border-amber-400/40',
     fondo: 'bg-amber-50',
-    circulo: 'bg-amber-500 dark:bg-amber-400',
+    circulo: 'bg-yellow-500 dark:bg-yellow-400',
   },
   error: {
     tono: 'rojo',

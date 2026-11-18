@@ -9,7 +9,7 @@ import { descargarRecetaPdf } from '@/modules/monitoreo/lib/recetaPdf';
 import { useAprobacionCalidad } from '@/modules/calidad/lib/useAprobacionCalidad';
 import { codigoMP, fechaCorta, fmt, mmss, num, signo } from '@/shared/lib/format';
 
-const CARD = 'rounded-[14px] bg-white/70 dark:bg-slate-900/60 shadow-md dark:shadow-none px-4 py-[18px] sm:px-[22px]';
+const CARD = 'rounded-md bg-white/70 dark:bg-slate-900/60 shadow-md dark:shadow-none px-4 py-[18px] sm:px-[22px]';
 const TH =
   'px-1.5 py-2 text-[12px] font-bold uppercase tracking-[0.8px] text-gray-500 dark:text-slate-400';
 const TD = 'px-1.5 py-2 align-middle text-[15px] font-medium';
@@ -96,8 +96,7 @@ export default function EtiquetaDigital() {
       {!cargando && data && lote && (
         <div className="flex flex-col gap-6">
           {/* Small y medium (< lg): producto arriba, línea divisoria y código de barras debajo. Desktop (lg): lado a lado */}
-          {/* Borde izquierdo verde, igual que la card del lote en el monitor */}
-          <section className={`${CARD} !rounded-none flex flex-col gap-3 border-l-[6px] border-teal-600 lg:flex-row lg:items-center lg:justify-between lg:gap-x-6`}>
+          <section className={`${CARD} flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between lg:gap-x-6`}>
             <div className="flex min-w-0 flex-col gap-1.5 lg:flex-1">
               <h1 className="m-0 text-2xl font-extrabold leading-[1.15] [overflow-wrap:anywhere] sm:text-[28px]">
                 {lote.nombre_producto}

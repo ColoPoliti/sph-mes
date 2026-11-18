@@ -25,7 +25,7 @@ export default function StatusBar() {
 
       <span className="flex items-center gap-2">
         <span
-          className={`inline-block h-3.5 w-3.5 ${!plcOn ? 'bg-red-500' : plcEspera ? 'bg-amber-400' : 'bg-emerald-500'}`}
+          className={`inline-block h-3.5 w-3.5 ${!plcOn ? 'bg-red-500' : plcEspera ? 'bg-yellow-500 dark:bg-yellow-400' : 'bg-emerald-500'}`}
           aria-hidden="true"
         />
         <span>

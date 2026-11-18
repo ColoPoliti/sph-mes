@@ -20,7 +20,7 @@ import { getUltimas } from '@/modules/monitoreo/lib/api';
 import { clamp, codigoMP, fmt, mmss, num } from '@/shared/lib/format';
 import { enEspera, enLinea, nombreEtapa, unidadEtapa } from '@/modules/monitoreo/lib/rooms';
 
-const CARD = 'rounded-[14px] bg-white/70 dark:bg-slate-900/60 shadow-md dark:shadow-none px-4 py-[18px] sm:px-[22px]';
+const CARD = 'rounded-md bg-white/70 dark:bg-slate-900/60 shadow-md dark:shadow-none px-4 py-[18px] sm:px-[22px]';
 
 export default function Dashboard() {
   const { selectedRoom: s, now, lotesVersion } = useMonitor();
@@ -115,8 +115,7 @@ export default function Dashboard() {
     <div className="flex flex-col gap-6">
       {/* Encabezado del producto */}
       {/* Small y medium (< lg): producto arriba, línea divisoria y código de barras debajo. Desktop (lg): lado a lado */}
-      {/* Borde izquierdo grueso con el verde del botón "Historial de elaboraciones" */}
-      <section className={`${CARD} !rounded-none flex flex-col gap-3 border-l-[6px] border-teal-600 lg:flex-row lg:items-center lg:justify-between lg:gap-x-6`}>
+      <section className={`${CARD} flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between lg:gap-x-6`}>
         <div className="flex min-w-0 flex-col gap-1.5 lg:flex-1">
           <h1 className="m-0 sm:text-4xl font-extrabold leading-[1.15] [overflow-wrap:anywhere] text-xl">
             {r ? String(r.producto?.nombre || '').toUpperCase() : 'SIN LOTE'}

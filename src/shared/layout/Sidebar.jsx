@@ -10,8 +10,10 @@ const esMovil = () =>
 /**
  * Ítem del menú lateral (mismo diseño que "Historial de elaboraciones" del monitor original):
  * Ícono y título en una línea (el subtítulo va en el tooltip). Íconos sin color, del mismo tono que el texto.
- * Activo = fila slate oscura con borde teal.
+ * Activo = fila slate (clara en modo claro, oscura en modo oscuro) con borde teal.
  */
+const TEXTO_ACTIVO = 'text-slate-900 dark:text-white';
+
 function MenuItem({ item, open, onNavegar, separado = false }) {
   return (
     <NavLink
@@ -23,7 +25,7 @@ function MenuItem({ item, open, onNavegar, separado = false }) {
       className={({ isActive }) =>
         `-mx-2 block px-2 transition-colors ${open ? 'py-1' : 'flex justify-center py-1.5'
         } ${separado ? 'mt-1 border-y border-gray-200 dark:border-white/[.06]' : ''} ${isActive
-          ? 'border-l-4 border-l-teal-600 bg-slate-900 pl-1 dark:border-l-teal-600 dark:bg-slate-900'
+          ? 'border-l-4 border-l-teal-600 bg-slate-200 pl-1 dark:border-l-teal-600 dark:bg-slate-900'
           : 'hover:bg-gray-100 dark:hover:bg-slate-800/50'
         }`
       }
@@ -34,11 +36,11 @@ function MenuItem({ item, open, onNavegar, separado = false }) {
           <span className="flex min-h-11 w-full min-w-0 items-center gap-3 py-2 pl-3 pr-2 text-left">
             <FontAwesomeIcon
               icon={item.icono}
-              className={`w-4 flex-none text-sm ${isActive ? 'text-white' : 'text-gray-600 dark:text-slate-300'}`}
+              className={`w-4 flex-none text-sm ${isActive ? TEXTO_ACTIVO : 'text-gray-600 dark:text-slate-300'}`}
               aria-hidden="true"
             />
             <span
-              className={`min-w-0 truncate text-[14px] font-normal ${isActive ? 'text-white' : 'text-gray-600 dark:text-slate-300'
+              className={`min-w-0 truncate text-[14px] font-normal ${isActive ? TEXTO_ACTIVO : 'text-gray-600 dark:text-slate-300'
                 }`}
             >
               {item.label}
@@ -48,7 +50,7 @@ function MenuItem({ item, open, onNavegar, separado = false }) {
           <span className="flex h-11 w-full items-center justify-center px-1">
             <FontAwesomeIcon
               icon={item.icono}
-              className={`text-base ${isActive ? 'text-white' : 'text-gray-600 dark:text-slate-300'}`}
+              className={`text-base ${isActive ? TEXTO_ACTIVO : 'text-gray-600 dark:text-slate-300'}`}
               aria-hidden="true"
             />
           </span>

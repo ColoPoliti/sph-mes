@@ -19,7 +19,7 @@ export const NIVELES = {
   amarillo: {
     texto: 'Demorada',
     chip: 'bg-amber-500/15 text-amber-700 dark:bg-amber-400/15 dark:text-amber-300',
-    punto: 'bg-amber-500 dark:bg-amber-400',
+    punto: 'bg-yellow-500 dark:bg-yellow-400',
   },
   rojo: {
     texto: 'Muy demorada',

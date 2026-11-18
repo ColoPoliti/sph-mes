@@ -98,7 +98,7 @@ export default function SalasMenu({ open, onNavegar }) {
                   const indicador = (
                     <span
                       className={`h-2 w-2 flex-none rounded-[2px] ${
-                        !enLinea(s, now) ? 'bg-red-500' : enEspera(s) ? 'bg-amber-400' : 'bg-emerald-500'
+                        !enLinea(s, now) ? 'bg-red-500' : enEspera(s) ? 'bg-yellow-500 dark:bg-yellow-400' : 'bg-emerald-500'
                       }`}
                       aria-hidden="true"
                     />
@@ -111,7 +111,7 @@ export default function SalasMenu({ open, onNavegar }) {
                         open
                           ? 'py-0.5'
                           : `-mx-2 flex justify-center px-2 py-1.5 ${
-                              activo ? 'border-l-4 border-l-teal-600 bg-slate-900 pl-1 dark:border-l-teal-600 dark:bg-slate-900' : ''
+                              activo ? 'border-l-4 border-l-teal-600 bg-slate-200 pl-1 dark:border-l-teal-600 dark:bg-slate-900' : ''
                             }`
                       }`}
                     >
@@ -123,7 +123,7 @@ export default function SalasMenu({ open, onNavegar }) {
                         title={`PLC ${plc} · ${area.label} · ${estado}`}
                         className={`flex w-full cursor-pointer rounded-lg border-transparent transition-colors ${
                           open
-                            ? `min-h-10 items-center gap-3 py-2 pl-3 pr-2 text-left ${activo ? 'bg-slate-900' : ''}`
+                            ? `min-h-10 items-center gap-3 py-2 pl-3 pr-2 text-left ${activo ? 'bg-slate-200 dark:bg-slate-900' : ''}`
                             : 'h-11 items-center justify-center gap-1.5 border-2 px-1'
                         } ${activo ? '' : 'hover:bg-gray-100 dark:hover:bg-slate-800/60'}`}
                       >
@@ -133,7 +133,7 @@ export default function SalasMenu({ open, onNavegar }) {
                             {indicador}
                             <span
                               className={`min-w-0 truncate text-[14px] font-normal ${
-                                activo ? 'text-white' : 'text-gray-600 dark:text-slate-300'
+                                activo ? 'text-slate-900 dark:text-white' : 'text-gray-600 dark:text-slate-300'
                               }`}
                             >
                               PLC {plc}
@@ -144,7 +144,7 @@ export default function SalasMenu({ open, onNavegar }) {
                             {indicador}
                             <span
                               className={`whitespace-nowrap text-[10px] font-normal leading-none ${
-                                activo ? 'text-white' : 'text-gray-600 dark:text-slate-300'
+                                activo ? 'text-slate-900 dark:text-white' : 'text-gray-600 dark:text-slate-300'
                               }`}
                             >
                               PLC {plc}

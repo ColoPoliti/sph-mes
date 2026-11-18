@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useTituloVista } from '@/shared/hooks/useTituloVista';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faXmark } from '@fortawesome/free-solid-svg-icons';
+import Reloj from '@/shared/components/Reloj';
 import SaphirusLogo from '@/shared/components/SaphirusLogo';
 import SesionMenu from '@/shared/components/SesionMenu';
 import ThemeToggle from '@/shared/components/ThemeToggle';
@@ -10,7 +11,7 @@ export default function TopBar({ menuOpen, onToggleMenu }) {
   const { titulo, sub } = useTituloVista();
 
   return (
-    <header className="textura-fondo flex h-[72px] flex-none items-center gap-2.5 relative z-10 border-b border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-md dark:shadow-none px-4 sm:gap-4 sm:px-6">
+    <header className="textura-fondo flex h-[72px] flex-none items-center gap-2.5 relative z-10 border-b border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 sm:gap-4 sm:px-6">
       {/* Mobile: hamburguesa que abre/cierra el menú (en escritorio se maneja desde el propio menú) */}
       <button
         type="button"
@@ -45,6 +46,9 @@ export default function TopBar({ menuOpen, onToggleMenu }) {
           {sub}
         </span>
       </div>
+
+      {/* Oculto en mobile: la barra ya va justa con el logo centrado */}
+      <Reloj className="hidden sm:flex" />
 
       <SesionMenu />
 

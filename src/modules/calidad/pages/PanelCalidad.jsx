@@ -49,7 +49,7 @@ export default function PanelCalidad() {
       {ingresos.length > 0 && (
         <Link
           to="/calidad/ingresos"
-          className="flex items-center gap-3 rounded-[14px] border border-amber-500/50 bg-amber-500/15 px-4 py-3 text-[15px] font-semibold text-amber-800 transition-colors hover:bg-amber-500/25 dark:text-amber-200"
+          className="flex items-center gap-3 rounded-md border border-amber-500/50 bg-amber-500/15 px-4 py-3 text-[15px] font-semibold text-amber-800 transition-colors hover:bg-amber-500/25 dark:text-amber-200"
         >
           <span className="text-xl" aria-hidden="true">⚑</span>
           {ingresos.length} {ingresos.length === 1 ? 'ingreso de materia prima espera' : 'ingresos de materia prima esperan'} inspección.
