@@ -6,12 +6,13 @@ import { useMemo } from 'react';
 import { getRecetas } from '@/modules/administracion/lib/api';
 import { getAuditorias } from '@/modules/auditoria/lib/api';
 import { getOrdenes } from '@/modules/compras/lib/api';
+import { CONFIG } from '@/modules/monitoreo/config';
 import { getHistorial } from '@/modules/monitoreo/lib/api';
 import { enEspera, enLinea, nombreEtapa, subSala } from '@/modules/monitoreo/lib/rooms';
 import { getOrdenesBejerman, porLinea } from '@/modules/programacion/lib/api';
 import { estadoRevision } from '@/modules/programacion/lib/revision';
 import { useConsulta } from '@/shared/hooks/useConsulta';
-import { clamp, hoyISO } from '@/shared/lib/format';
+import { clamp, hoyISO, mmss } from '@/shared/lib/format';
 import { ciclosDe, esenciaDe, getTolvas, loteDeTolva } from '@/shared/lib/tolvas';
 
 const REFRESCO_MS = 60000;
@@ -38,6 +39,18 @@ export function resumirMonitoreo(salas, now) {
         detalle: subSala(s, now),
         estado: 'ok',
         avance,
+        // Mismos datos que la card de la sala en Monitoreo: apertura de la válvula, peso cargado sobre el SP y tiempo de la etapa
+        valvula: CONFIG.VALVULA_COMO_PORCENTAJE ? clamp(s.estado, 0, 100) : null,
+        cargado: s.sp > 0 ? clamp((s.peso / s.sp) * 100, 0, 100) : 0,
+        tiempo: s.etapa <= 5 && s.etapaIni ? mmss((now - s.etapaIni) / 1000) : '--:--',
+        // Título de la card: producto del lote en elaboración (de la receta que llega por MQTT), como en Monitoreo
+        producto: s.receta?.producto?.nombre ? String(s.receta.producto.nombre).toUpperCase() : 'SIN LOTE',
+        subtitulo: s.receta ? `SKU ${s.receta.producto?.sku || '-'}  ·  Tolva ${s.receta.tolva ?? '-'}` : null,
+        // Estado y barritas de etapas, igual que en Monitoreo: etapas hechas completas y la actual según el peso
+        estadoTxt: s.etapa === 5 ? 'Etiqueta y agitado' : s.sp > 0 ? 'Dosificando' : 'Preparando',
+        segs: Array.from({ length: 6 }, (_, i) =>
+          i < s.etapa ? 100 : i === s.etapa ? (s.etapa === 5 ? 100 : s.sp > 0 ? clamp((s.peso / s.sp) * 100, 0, 100) : 0) : 0,
+        ),
       };
     });
   const enLineaN = contar(salas, (s) => enLinea(s, now));
@@ -47,6 +60,8 @@ export function resumirMonitoreo(salas, now) {
     valor: enLineaN,
     unidad: `de ${salas.length} PLC en línea`,
     grafico: { tipo: 'plcs', plcs },
+    // Secciones más separadas: número, PLC entre líneas y las cantidades al pie
+    separado: true,
     datos: [
       // Las tres cantidades suman el total de PLC; el círculo va siempre, aunque el valor sea 0
       { etiqueta: 'En ejecución', valor: ejecutando, aviso: 'ok' },
@@ -95,7 +110,9 @@ function resumirCalidad({ lotes }) {
   const rechazados = contar(semana, (l) => l.estado === 'rechazado');
   const pendientes = semana.length - aprobados - rechazados;
   return {
-    // Sin número principal: los lotes a liberar van en el centro de la dona
+    // Sin número principal: los lotes a liberar van en el centro de la dona.
+    // En el lugar compacto (sin gráfico) se muestran como número principal
+    compacto: { valor: pendientes, unidad: 'lotes a liberar' },
     grafico: {
       tipo: 'dona',
       centro: { valor: pendientes, etiqueta: 'a liberar' },

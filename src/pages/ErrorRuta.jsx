@@ -2,6 +2,7 @@ import { Link, useRouteError } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { BOTON, CARD } from '@/shared/components/clases';
+import Tooltip from '@/shared/components/Tooltip';
 import { subClass } from '@/shared/components/ui';
 
 /**
@@ -21,9 +22,11 @@ export default function ErrorRuta({ noEncontrada = false }) {
         <FontAwesomeIcon icon={faTriangleExclamation} className="text-4xl text-amber-500" aria-hidden="true" />
         <h1 className="m-0 text-xl font-extrabold">{titulo}</h1>
         <p className={`m-0 break-words ${subClass}`}>{detalle}</p>
-        <Link to="/" className={BOTON.primario}>
-          Volver al inicio
-        </Link>
+        <Tooltip texto="Ir a la pantalla de inicio del MES">
+          <Link to="/" className={BOTON.primario}>
+            Volver al inicio
+          </Link>
+        </Tooltip>
       </div>
     </div>
   );

@@ -16,6 +16,7 @@ import { bajoMinimo, totalOrden } from '../lib/api';
 import { cantidad, fechaAR, pesos } from '../lib/estados';
 import { useDatosCompras } from '../lib/useDatosCompras';
 import { BarraStock, ChipOC } from '../components/Chips';
+import Tooltip from '@/shared/components/Tooltip';
 
 export default function PanelCompras() {
   const { puede } = useSesion();
@@ -63,9 +64,9 @@ export default function PanelCompras() {
       alinear: 'right',
       celda: (m) =>
         puede('compras.editar') && (
-          <Link to={`/compras/ordenes/nueva?mp=${encodeURIComponent(m.codigo)}`} className="font-bold text-violet-700 underline dark:text-violet-300">
+          <Tooltip texto={`Crear una orden de compra para ${m.nombre || m.codigo}`}><Link to={`/compras/ordenes/nueva?mp=${encodeURIComponent(m.codigo)}`} className="font-bold text-violet-700 underline dark:text-violet-300">
             Pedir
-          </Link>
+          </Link></Tooltip>
         ),
     },
   ];
@@ -78,17 +79,19 @@ export default function PanelCompras() {
         icono={faFileInvoiceDollar}
         acciones={
           puede('compras.editar') && (
-            <Link to="/compras/ordenes/nueva" className={BOTON.marca}>
-              <FontAwesomeIcon icon={faCartPlus} aria-hidden="true" />
-              Nueva orden
-            </Link>
+            <Tooltip texto="Crear una orden de compra nueva">
+              <Link to="/compras/ordenes/nueva" className={BOTON.marca}>
+                <FontAwesomeIcon icon={faCartPlus} aria-hidden="true" />
+                Nueva orden
+              </Link>
+            </Tooltip>
           )
         }
       />
 
       <GrillaKpi>
-        <Kpi titulo="Órdenes abiertas" valor={abiertas.length} icono={faFileInvoiceDollar} tono="violeta" to="/compras/ordenes" />
-        <Kpi titulo="Pend. aprobación" valor={pendientes.length} icono={faHourglassHalf} tono="ambar" to="/compras/ordenes?estado=pendiente" />
+        <Kpi titulo="Órdenes abiertas" valor={abiertas.length} icono={faFileInvoiceDollar} tono="violeta" to="/compras/ordenes" ayuda="Ver las órdenes de compra abiertas" />
+        <Kpi titulo="Pend. aprobación" valor={pendientes.length} icono={faHourglassHalf} tono="ambar" to="/compras/ordenes?estado=pendiente" ayuda="Ver las órdenes pendientes de aprobación" />
         <Kpi titulo="Comprometido" valor={pesos(comprometido)} detalle="Órdenes aprobadas sin recibir" icono={faSackDollar} tono="teal" />
         <Kpi
           titulo="MP bajo mínimo"
@@ -110,14 +113,18 @@ export default function PanelCompras() {
         </Card>
 
         <Card className="flex flex-col gap-2.5">
-          <CardTitulo icono={faFileInvoiceDollar} acciones={<Link to="/compras/ordenes" className="text-sm font-bold text-violet-700 underline dark:text-violet-300">Ver todas</Link>}>
+          <CardTitulo icono={faFileInvoiceDollar} acciones={
+            <Tooltip texto="Ver todas las órdenes de compra" posicion="abajo">
+              <Link to="/compras/ordenes" className="text-sm font-bold text-violet-700 underline dark:text-violet-300">Ver todas</Link>
+            </Tooltip>
+          }>
             Últimas órdenes
           </CardTitulo>
           <EstadoConsulta cargando={cargando} error={error} vacio={!ordenes.length} textoVacio="Todavía no hay órdenes de compra." />
           <ul className="m-0 flex list-none flex-col p-0">
             {ordenes.slice(0, 6).map((o) => (
               <li key={o.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-gray-200 py-2.5 dark:border-slate-800">
-                <Link to={`/compras/ordenes/${o.id}`} className="font-bold text-teal-600 underline dark:text-teal-400">{o.numero}</Link>
+                <Tooltip texto={`Ver el detalle de la orden ${o.numero}`}><Link to={`/compras/ordenes/${o.id}`} className="font-bold text-teal-600 underline dark:text-teal-400">{o.numero}</Link></Tooltip>
                 <span className="min-w-0 flex-1 truncate text-[15px] font-medium">{proveedor[o.proveedorId]?.razonSocial || '—'}</span>
                 <span className="text-[14px] text-gray-600 dark:text-slate-300">Entrega {fechaAR(o.fechaEntrega)}</span>
                 <span className="font-bold tabular-nums">{pesos(totalOrden(o))}</span>

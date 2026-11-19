@@ -2,7 +2,7 @@
 // Agregar un módulo = sumar una entrada acá + su carpeta en src/modules/<key> con routes.jsx.
 // Las solapas / selector de módulos (ModuloNav), el Sidebar (menú) y la pantalla de inicio se arman solos con esta lista.
 import {
-  faCartShopping,
+  // faCartShopping, // (Compras, oculto)
   faClipboardList,
   faFlask,
   faGears,
@@ -11,18 +11,19 @@ import {
   faScrewdriverWrench,
   faClipboardCheck,
   faClockRotateLeft,
-  faFileInvoiceDollar,
+  // faFileInvoiceDollar, // (Compras, oculto)
   faFlaskVial,
   faGaugeHigh,
   faHouse,
   faIndustry,
   faListCheck,
-  faTruckRampBox,
-  faBoxesStacked,
-  faTruckField,
+  // faTruckRampBox, // (Compras, oculto)
+  // faBoxesStacked, // (Compras, oculto)
+  // faTruckField, // (Compras, oculto)
 } from '@fortawesome/free-solid-svg-icons';
 
 /**
+ * corta      descripción breve (globo de "Entrar" en inicio y tooltip de las solapas)
  * key        primer segmento de la ruta (/programacion, /calidad, /elaboracion, /monitoreo, /produccion, /auditoria, /compras, /administracion)
  * permiso    permiso necesario para entrar (null = público). Ver PERMISOS en shared/lib/auth.js
  * menu       ítems del sidebar: { to, label, sub, icono, end }
@@ -33,6 +34,7 @@ export const MODULOS = [
     key: 'programacion',
     label: 'Programación',
     descripcion: 'Órdenes de producción leídas de Bejerman y su prioridad por línea.',
+    corta: 'Órdenes y prioridad por línea',
     icono: faClipboardList,
     permiso: 'programacion.ver',
     menu: [
@@ -43,6 +45,7 @@ export const MODULOS = [
     key: 'calidad',
     label: 'Calidad',
     descripcion: 'Revisión de cantidades de las órdenes, liberación de lotes elaborados e inspección de materia prima.',
+    corta: 'Revisión y liberación de lotes',
     icono: faClipboardCheck,
     permiso: 'calidad.ver',
     menu: [
@@ -57,6 +60,7 @@ export const MODULOS = [
     key: 'elaboracion',
     label: 'Elaboración',
     descripcion: 'Órdenes aprobadas por Calidad, por línea y prioridad, con la receta para cada tolva.',
+    corta: 'Órdenes a elaborar por línea',
     icono: faGears,
     permiso: 'elaboracion.ver',
     menu: [
@@ -67,6 +71,7 @@ export const MODULOS = [
     key: 'monitoreo',
     label: 'Monitoreo',
     descripcion: 'Salas y PLC en vivo, receta en curso e historial de elaboraciones.',
+    corta: 'Salas y PLC en vivo',
     icono: faIndustry,
     permiso: null,
     menuSalas: true,
@@ -78,6 +83,7 @@ export const MODULOS = [
     key: 'produccion',
     label: 'Producción',
     descripcion: 'Tolvas de cada línea: en uso, en espera por prioridad y cambio de tolva con lectura del código.',
+    corta: 'Tolvas y cambio de tolva',
     icono: faWarehouse,
     permiso: 'produccion.ver',
     menu: [
@@ -88,30 +94,34 @@ export const MODULOS = [
     key: 'auditoria',
     label: 'Auditoría',
     descripcion: 'Control documental de cada tolva aprobada por Calidad que salió a Producción.',
+    corta: 'Control documental de tolvas',
     icono: faUserCheck,
     permiso: 'auditoria.ver',
     menu: [
       { to: '/auditoria', label: 'Tolvas a controlar', sub: 'Control documental', icono: faUserCheck, end: true },
     ],
   },
-  {
-    key: 'compras',
-    label: 'Compras',
-    descripcion: 'Órdenes de compra, proveedores y stock de materias primas.',
-    icono: faCartShopping,
-    permiso: 'compras.ver',
-    menu: [
-      { to: '/compras', label: 'Panel de compras', sub: 'Indicadores', icono: faGaugeHigh, end: true },
-      { to: '/compras/ordenes', label: 'Órdenes de compra', sub: 'Alta, aprobación y recepción', icono: faFileInvoiceDollar },
-      { to: '/compras/materias-primas', label: 'Materias primas', sub: 'Stock y punto de pedido', icono: faBoxesStacked },
-      { to: '/compras/proveedores', label: 'Proveedores', sub: 'Padrón', icono: faTruckField },
-      { to: '/compras/recepciones', label: 'Recepciones', sub: 'Ingresos y dictamen de calidad', icono: faTruckRampBox },
-    ],
-  },
+  // Compras: oculto por ahora (no aparece en inicio, solapas ni menú). Las rutas siguen en router.jsx.
+  // {
+  //   key: 'compras',
+  //   label: 'Compras',
+  //   descripcion: 'Órdenes de compra, proveedores y stock de materias primas.',
+  //   corta: 'Órdenes de compra y stock',
+  //   icono: faCartShopping,
+  //   permiso: 'compras.ver',
+  //   menu: [
+  //     { to: '/compras', label: 'Panel de compras', sub: 'Indicadores', icono: faGaugeHigh, end: true },
+  //     { to: '/compras/ordenes', label: 'Órdenes de compra', sub: 'Alta, aprobación y recepción', icono: faFileInvoiceDollar },
+  //     { to: '/compras/materias-primas', label: 'Materias primas', sub: 'Stock y punto de pedido', icono: faBoxesStacked },
+  //     { to: '/compras/proveedores', label: 'Proveedores', sub: 'Padrón', icono: faTruckField },
+  //     { to: '/compras/recepciones', label: 'Recepciones', sub: 'Ingresos y dictamen de calidad', icono: faTruckRampBox },
+  //   ],
+  // },
   {
     key: 'administracion',
     label: 'Administración',
     descripcion: 'Maestro de tolvas: receta de cada producto a partir de su código.',
+    corta: 'Recetas del maestro de tolvas',
     icono: faScrewdriverWrench,
     permiso: 'admin.ver',
     menu: [

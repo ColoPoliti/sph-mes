@@ -20,6 +20,7 @@ import { hoyISO } from '@/shared/lib/format';
 import { ESTADOS_TOLVA, ciclosDe, getTolvas, loteDeTolva } from '@/shared/lib/tolvas';
 import { getHistorial } from '@/modules/monitoreo/lib/api';
 import { getAuditorias, quitarControl, registrarControl } from '../lib/api';
+import Tooltip from '@/shared/components/Tooltip';
 
 const FILTROS = [
   { key: 'pendiente', label: 'Pendientes' },
@@ -157,13 +158,13 @@ export default function TolvasControlar() {
       titulo: 'Lote PLC',
       valor: (c) => c.lote.id,
       celda: (c) => (
-        <Link
+        <Tooltip texto={`Ver la etiqueta digital del lote ${c.lote.id}`}><Link
           to={`/monitoreo/lotes/${c.lote.id}`}
           className="inline-flex min-h-9 items-center font-bold text-teal-600 underline dark:text-teal-400"
           aria-label={`Ver la etiqueta digital del lote ${c.lote.id}`}
         >
           #{c.lote.id}
-        </Link>
+        </Link></Tooltip>
       ),
     },
     {

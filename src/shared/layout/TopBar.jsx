@@ -6,6 +6,7 @@ import Reloj from '@/shared/components/Reloj';
 import SaphirusLogo from '@/shared/components/SaphirusLogo';
 import SesionMenu from '@/shared/components/SesionMenu';
 import ThemeToggle from '@/shared/components/ThemeToggle';
+import Tooltip from '@/shared/components/Tooltip';
 
 export default function TopBar({ menuOpen, onToggleMenu }) {
   const { titulo, sub } = useTituloVista();
@@ -25,13 +26,15 @@ export default function TopBar({ menuOpen, onToggleMenu }) {
       </button>
 
       {/* Logo Saphirus: en mobile centrado en la barra, desde sm vuelve a su lugar */}
-      <Link
-        to="/"
-        aria-label="Saphirus · Ir al inicio"
-        className="absolute left-1/2 flex flex-none -translate-x-1/2 items-center rounded-md focus-visible:outline-offset-4 sm:static sm:translate-x-0"
+      <Tooltip
+        texto="Ir al inicio"
+        posicion="abajo"
+        className="absolute left-1/2 flex flex-none -translate-x-1/2 items-center sm:static sm:translate-x-0"
       >
-        <SaphirusLogo className="h-10 w-auto max-w-[170px] object-contain sm:max-w-none" />
-      </Link>
+        <Link to="/" aria-label="Saphirus · Ir al inicio" className="flex items-center rounded-md focus-visible:outline-offset-4">
+          <SaphirusLogo className="h-10 w-auto max-w-[170px] object-contain sm:max-w-none" />
+        </Link>
+      </Tooltip>
 
       <span className="hidden h-7 w-px flex-none bg-gray-300 dark:bg-slate-700 sm:block" aria-hidden="true" />
 

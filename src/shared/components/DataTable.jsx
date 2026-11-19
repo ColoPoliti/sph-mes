@@ -39,6 +39,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { descargarCSV } from '@/shared/lib/csv';
 import { BOTON, INPUT, TD, TH } from './clases';
+import Tooltip from './Tooltip';
 
 const TAMANOS = [10, 25, 50, 100];
 const TODAS = 0;
@@ -212,10 +213,10 @@ export default function DataTable({
                     {c.oculto ? (
                       <span className="sr-only">{c.titulo}</span>
                     ) : c.valor ? (
+                      <Tooltip className="contents" texto={`Ordenar por ${c.titulo}`}>
                       <button
                         type="button"
                         onClick={() => alternarOrden(c.id)}
-                        title={`Ordenar por ${c.titulo}`}
                         className={`inline-flex min-h-6 cursor-pointer items-center gap-1.5 uppercase transition-colors hover:text-gray-900 dark:hover:text-white ${JUSTIFICAR[alinear]} ${
                           activo ? 'text-teal-600 dark:text-teal-400' : ''
                         }`}
@@ -223,6 +224,7 @@ export default function DataTable({
                         <span>{contenido}</span>
                         <ChevronOrden dir={activo} />
                       </button>
+                      </Tooltip>
                     ) : (
                       contenido
                     )}

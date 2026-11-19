@@ -10,6 +10,7 @@ import { confirmar, toast } from '@/shared/lib/alertas';
 import { useSesion } from '@/shared/lib/auth';
 import { num } from '@/shared/lib/format';
 import { BASE_KG, INSUMOS, TAMANOS_TOLVA, aPantalla, eliminarReceta, escalar, getRecetas, totalKg } from '../lib/api';
+import Tooltip from '@/shared/components/Tooltip';
 
 const cant = (v) =>
   v === '' || v === null || v === undefined
@@ -109,9 +110,9 @@ export default function Recetas() {
             alinear: 'right',
             celda: (r) => (
               <span className="inline-flex gap-1.5">
-                <Link to={`/administracion/tolvas/${r.id}/editar`} className={BOTON_ICONO} aria-label={`Editar la receta ${r.codigo_barra}`}>
+                <Tooltip texto={`Editar la receta ${r.codigo_barra}`}><Link to={`/administracion/tolvas/${r.id}/editar`} className={BOTON_ICONO} aria-label={`Editar la receta ${r.codigo_barra}`}>
                   <FontAwesomeIcon icon={faPen} aria-hidden="true" />
-                </Link>
+                </Link></Tooltip>
                 <button
                   type="button"
                   className={`${BOTON_ICONO} hover:!text-red-600 dark:hover:!text-red-400`}
@@ -136,10 +137,12 @@ export default function Recetas() {
         icono={faFlask}
         acciones={
           puedeEditar && (
-            <Link to="/administracion/tolvas/nueva" className={BOTON.marca}>
-              <FontAwesomeIcon icon={faPlus} aria-hidden="true" />
-              Nueva receta
-            </Link>
+            <Tooltip texto="Cargar una receta nueva en el maestro de tolvas">
+              <Link to="/administracion/tolvas/nueva" className={BOTON.marca}>
+                <FontAwesomeIcon icon={faPlus} aria-hidden="true" />
+                Nueva receta
+              </Link>
+            </Tooltip>
           )
         }
       />

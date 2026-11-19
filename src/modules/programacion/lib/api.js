@@ -15,7 +15,9 @@
 // PROVISORIO: los cambios de prioridad y de línea se guardan en este navegador
 // (localStorage) porque todavía no hay dónde persistirlos. Cuando exista el endpoint,
 // reemplazar leer/guardar por llamadas a la API sin tocar las pantallas.
+import { DEMO } from '@/modules/monitoreo/lib/demo';
 import { http } from '@/shared/lib/http';
+import { ordenesDemo } from './demo';
 import { aplicarRevisiones } from './revision';
 
 const CLAVE = 'sph-programacion';
@@ -42,8 +44,9 @@ const texto = (v) => (v === null || v === undefined ? '' : String(v));
 // Orden natural: '2' < '10', 'Línea 2' < 'Línea 10'
 export const comparar = (a, b) => texto(a).localeCompare(texto(b), 'es', { numeric: true });
 
-/** Órdenes de producción tal como vienen de Bejerman. */
-export const getOrdenesBejerman = () => http.get('/ordenes_produccion.php');
+/** Órdenes de producción tal como vienen de Bejerman. En modo demo (?demo) usa órdenes simuladas. */
+export const getOrdenesBejerman = () =>
+  DEMO ? Promise.resolve(ordenesDemo()) : http.get('/ordenes_produccion.php');
 
 /**
  * Agrupa las órdenes por línea (aplicando las reasignaciones) y las ordena por prioridad:

@@ -26,7 +26,13 @@ const INICIO = {
   bloqueado: false,
 };
 
-const titulo = (m) => (m.bloqueado ? `${m.label} · requiere permiso` : m.label);
+// Aclaración de cada solapa (title nativo: la barra tiene scroll horizontal y recortaría un globo)
+const titulo = (m) =>
+  m.bloqueado
+    ? `${m.label}: requiere iniciar sesión con un perfil que tenga acceso`
+    : m.corta
+      ? `Ir a ${m.label}: ${m.corta}`
+      : `Ir a ${m.label}`;
 
 /* ------------------------------------------------------------------ */
 /* Escritorio (≥ lg): barra de solapas debajo del TopBar               */

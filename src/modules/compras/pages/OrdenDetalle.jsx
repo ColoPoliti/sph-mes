@@ -22,6 +22,7 @@ import { useSesion } from '@/shared/lib/auth';
 import { TRANSICIONES, cambiarEstadoOrden, getMateriasPrimas, getOrden, getProveedor, getRecepciones, totalOrden } from '../lib/api';
 import { cantidad, fechaAR, pesos } from '../lib/estados';
 import { ChipOC, ChipRecepcion } from '../components/Chips';
+import Tooltip from '@/shared/components/Tooltip';
 
 // Acción -> botón, permiso necesario y confirmación
 const ACCIONES = {
@@ -125,10 +126,12 @@ export default function OrdenDetalle() {
         <ChipOC estado={orden.estado} />
         <div className="ml-auto flex flex-wrap gap-2.5">
           {orden.estado === 'borrador' && puede('compras.editar') && (
-            <Link to={`/compras/ordenes/${orden.id}/editar`} className={BOTON.secundario}>
-              <FontAwesomeIcon icon={faPen} aria-hidden="true" />
-              Editar
-            </Link>
+            <Tooltip texto="Modificar los datos de esta orden de compra">
+              <Link to={`/compras/ordenes/${orden.id}/editar`} className={BOTON.secundario}>
+                <FontAwesomeIcon icon={faPen} aria-hidden="true" />
+                Editar
+              </Link>
+            </Tooltip>
           )}
           {acciones.map((k) => (
             <button key={k} type="button" className={ACCIONES[k].clase} onClick={() => ejecutar(k)}>

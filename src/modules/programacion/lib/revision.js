@@ -11,14 +11,24 @@
 // PROVISORIO: las decisiones se guardan en este navegador (localStorage), por número de
 // producción. Cuando exista el endpoint, reemplazar leer/guardar por llamadas a la API.
 import { faCircleCheck, faCircleXmark, faHourglassHalf } from '@fortawesome/free-solid-svg-icons';
+import { revisionesOrdenesDemo } from '@/modules/calidad/lib/demo';
+import { DEMO } from '@/modules/monitoreo/lib/demo';
 
-const CLAVE = 'sph-revision-ordenes';
+// En modo demo (?demo) se usa otra clave, sembrada con revisiones de ejemplo
+const CLAVE = DEMO ? 'sph-revision-ordenes-demo' : 'sph-revision-ordenes';
 
 const leer = () => {
   try {
-    return JSON.parse(localStorage.getItem(CLAVE) || '{}');
+    const guardado = localStorage.getItem(CLAVE);
+    // En demo, la primera vez se siembran las decisiones de ejemplo
+    if (guardado === null && DEMO) {
+      const semilla = revisionesOrdenesDemo();
+      localStorage.setItem(CLAVE, JSON.stringify(semilla));
+      return semilla;
+    }
+    return JSON.parse(guardado || '{}');
   } catch {
-    return {};
+    return DEMO ? revisionesOrdenesDemo() : {};
   }
 };
 

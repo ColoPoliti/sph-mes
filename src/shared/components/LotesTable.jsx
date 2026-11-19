@@ -6,6 +6,7 @@ import { fechaCorta, mmss, num } from '@/shared/lib/format';
 import { estadoChip } from '@/shared/lib/estados';
 import DataTable from '@/shared/components/DataTable';
 import { Chip, ChipEstado, SwitchAprobar } from '@/shared/components/ui';
+import Tooltip from '@/shared/components/Tooltip';
 
 // Fecha dentro de un badge; sin fecha (ej.: lote sin terminar) muestra un guion
 const BadgeFecha = ({ ts, tipo }) =>
@@ -36,13 +37,13 @@ export default function LotesTable({
       titulo: 'Id',
       valor: (r) => r.id,
       celda: (r) => (
-        <Link
+        <Tooltip texto={`Ver la etiqueta digital del lote ${r.id}`}><Link
           to={rutaLote(r.id)}
           aria-label={`Ver la etiqueta digital del lote ${r.id}`}
           className="inline-flex min-h-9 items-center rounded-md px-2.5 py-0.5 text-[15px] font-bold text-teal-600 dark:text-teal-400 underline"
         >
           #{r.id}
-        </Link>
+        </Link></Tooltip>
       ),
     },
     ...(conSala
@@ -116,19 +117,23 @@ export default function LotesTable({
             alinear: 'center',
             // Con comentario de rechazo el ícono va en rojo
             celda: (r) => (
-              <button
-                type="button"
-                onClick={() => onInfo(r)}
-                aria-label={`Información del lote #${r.id}${r.calidad?.comentario ? ' (tiene comentario)' : ''}`}
-                title={r.calidad?.comentario ? 'Ver información y comentario' : 'Ver información'}
-                className={`inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md text-lg transition-colors hover:bg-gray-100 dark:hover:bg-slate-800 ${
-                  r.calidad?.comentario
-                    ? 'text-red-600 dark:text-red-400'
-                    : 'text-violet-600 dark:text-violet-400'
-                }`}
+              <Tooltip
+                className="contents"
+                texto={r.calidad?.comentario ? 'Ver la información del lote y el comentario de Calidad' : 'Ver la información del lote'}
               >
-                <FontAwesomeIcon icon={faEye} aria-hidden="true" />
-              </button>
+                <button
+                  type="button"
+                  onClick={() => onInfo(r)}
+                  aria-label={`Información del lote #${r.id}${r.calidad?.comentario ? ' (tiene comentario)' : ''}`}
+                  className={`inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md text-lg transition-colors hover:bg-gray-100 dark:hover:bg-slate-800 ${
+                    r.calidad?.comentario
+                      ? 'text-red-600 dark:text-red-400'
+                      : 'text-violet-600 dark:text-violet-400'
+                  }`}
+                >
+                  <FontAwesomeIcon icon={faEye} aria-hidden="true" />
+                </button>
+              </Tooltip>
             ),
           },
         ]

@@ -4,6 +4,7 @@ import { faStamp } from '@fortawesome/free-solid-svg-icons';
 import DataTable from '@/shared/components/DataTable';
 import { ESTADOS_RECEPCION, cantidad } from '../lib/estados';
 import { ChipRecepcion } from './Chips';
+import Tooltip from '@/shared/components/Tooltip';
 
 const fechaHora = (iso) =>
   iso ? new Date(iso).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' }) : '—';
@@ -21,9 +22,9 @@ export default function TablaRecepciones({ filas, mp, orden, onDictaminar }) {
       valor: (r) => orden[r.ordenId]?.numero,
       celda: (r) =>
         orden[r.ordenId] ? (
-          <Link to={`/compras/ordenes/${r.ordenId}`} className="font-bold text-teal-600 underline dark:text-teal-400">
+          <Tooltip texto={`Ver la orden de compra ${orden[r.ordenId].numero}`}><Link to={`/compras/ordenes/${r.ordenId}`} className="font-bold text-teal-600 underline dark:text-teal-400">
             {orden[r.ordenId].numero}
-          </Link>
+          </Link></Tooltip>
         ) : (
           '—'
         ),
@@ -95,15 +96,16 @@ export default function TablaRecepciones({ filas, mp, orden, onDictaminar }) {
             titulo: 'Acción',
             alinear: 'center',
             celda: (r) => (
-              <button
-                type="button"
-                onClick={() => onDictaminar(r)}
-                aria-label={`Dictaminar el ingreso ${r.numero}`}
-                title="Aprobar / rechazar"
-                className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md text-lg text-sky-600 transition-colors hover:bg-gray-100 dark:text-sky-400 dark:hover:bg-slate-800"
-              >
-                <FontAwesomeIcon icon={faStamp} aria-hidden="true" />
-              </button>
+              <Tooltip className="contents" texto="Aprobar o rechazar el ingreso">
+                <button
+                  type="button"
+                  onClick={() => onDictaminar(r)}
+                  aria-label={`Dictaminar el ingreso ${r.numero}`}
+                  className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md text-lg text-sky-600 transition-colors hover:bg-gray-100 dark:text-sky-400 dark:hover:bg-slate-800"
+                >
+                  <FontAwesomeIcon icon={faStamp} aria-hidden="true" />
+                </button>
+              </Tooltip>
             ),
           },
         ]

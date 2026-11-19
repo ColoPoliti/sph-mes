@@ -4,13 +4,24 @@
 // guardan en este navegador (localStorage). Cuando exista el endpoint, cambiar
 // registrarDecision / quitarDecision / leer por llamadas a la API.
 
-const CLAVE = 'sph-aprobaciones';
+import { DEMO } from '@/modules/monitoreo/lib/demo';
+import { decisionesLotesDemo } from './demo';
+
+// En modo demo (?demo) se usa otra clave, sembrada con decisiones de ejemplo
+const CLAVE = DEMO ? 'sph-aprobaciones-demo' : 'sph-aprobaciones';
 
 const leer = () => {
   try {
-    return JSON.parse(localStorage.getItem(CLAVE) || '{}');
+    const guardado = localStorage.getItem(CLAVE);
+    // En demo, la primera vez se siembran las decisiones de ejemplo
+    if (guardado === null && DEMO) {
+      const semilla = decisionesLotesDemo();
+      localStorage.setItem(CLAVE, JSON.stringify(semilla));
+      return semilla;
+    }
+    return JSON.parse(guardado || '{}');
   } catch {
-    return {};
+    return DEMO ? decisionesLotesDemo() : {};
   }
 };
 

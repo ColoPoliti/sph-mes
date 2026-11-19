@@ -11,6 +11,7 @@ import { fechaCorta } from '@/shared/lib/format';
 import { areaDe } from '@/modules/monitoreo/config';
 import { REVISADOS, useLotesCalidad } from '../lib/useLotesCalidad';
 import FiltroPeriodo from '../components/FiltroPeriodo';
+import Tooltip from '@/shared/components/Tooltip';
 
 const fechaHora = (iso) => (iso ? new Date(iso).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' }) : '—');
 
@@ -45,7 +46,7 @@ export default function Decisiones() {
       id: 'lote',
       titulo: 'Lote',
       valor: (l) => l.id,
-      celda: (l) => <Link to={`/calidad/lotes/${l.id}`} className="font-bold text-teal-600 underline dark:text-teal-400">#{l.id}</Link>,
+      celda: (l) => <Tooltip texto={`Ver la etiqueta digital del lote #${l.id}`}><Link to={`/calidad/lotes/${l.id}`} className="font-bold text-teal-600 underline dark:text-teal-400">#{l.id}</Link></Tooltip>,
     },
     { id: 'producto', titulo: 'Producto', valor: (l) => l.nombre_producto },
     { id: 'sector', titulo: 'Sector / PLC', valor: (l) => `${areaDe(l.area)?.label || l.area} ${l.sala}` },

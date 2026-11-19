@@ -16,10 +16,10 @@
 // para el PLC lea de esta tabla). PROVISORIO: se guardan en este navegador (localStorage),
 // sin datos de ejemplo. Para conectar la API, reemplazar el cuerpo de cada función por
 // http.get/post/put/del (shared/lib/http.js) sin tocar las pantallas.
+import { recetasDemo } from '@/modules/calidad/lib/demo';
 import { areaDe } from '@/modules/monitoreo/config';
+import { DEMO } from '@/modules/monitoreo/lib/demo';
 import { crearColeccion } from '@/shared/lib/almacen';
-
-const recetas = crearColeccion('admin.recetas');
 
 // Insumos de la receta = etapas de dosificación de Elaboración (0 a 4; la 5 es etiqueta y agitado)
 const ELABORACION = areaDe('elaboracion');
@@ -28,6 +28,9 @@ export const INSUMOS = ELABORACION.etapas.slice(0, 5).map((nombre, etapa) => ({
   nombre,
   unidad: ELABORACION.unidades[etapa] || 'kg',
 }));
+
+// En modo demo (?demo) es otra colección, sembrada con recetas de ejemplo para los productos de las órdenes demo
+const recetas = DEMO ? crearColeccion('admin.recetas.demo', () => recetasDemo(INSUMOS)) : crearColeccion('admin.recetas');
 
 // Cantidad en la unidad de pantalla <-> kg (sp)
 const FACTOR = { ml: 1000, kg: 1 };

@@ -11,6 +11,7 @@ import { totalOrden } from '../lib/api';
 import { ESTADOS_OC, fechaAR, pesos } from '../lib/estados';
 import { useDatosCompras } from '../lib/useDatosCompras';
 import { ChipOC } from '../components/Chips';
+import Tooltip from '@/shared/components/Tooltip';
 
 export default function Ordenes() {
   const { puede } = useSesion();
@@ -66,9 +67,9 @@ export default function Ordenes() {
       titulo: 'Número',
       valor: (o) => o.numero,
       celda: (o) => (
-        <Link to={`/compras/ordenes/${o.id}`} className="inline-flex min-h-9 items-center font-bold text-teal-600 underline dark:text-teal-400">
+        <Tooltip texto={`Ver el detalle de la orden ${o.numero}`}><Link to={`/compras/ordenes/${o.id}`} className="inline-flex min-h-9 items-center font-bold text-teal-600 underline dark:text-teal-400">
           {o.numero}
-        </Link>
+        </Link></Tooltip>
       ),
     },
     { id: 'proveedor', titulo: 'Proveedor', valor: (o) => proveedor[o.proveedorId]?.razonSocial },
@@ -98,10 +99,12 @@ export default function Ordenes() {
               Exportar
             </button>
             {puede('compras.editar') && (
-              <Link to="/compras/ordenes/nueva" className={BOTON.marca}>
-                <FontAwesomeIcon icon={faCartPlus} aria-hidden="true" />
-                Nueva orden
-              </Link>
+              <Tooltip texto="Crear una orden de compra nueva">
+                <Link to="/compras/ordenes/nueva" className={BOTON.marca}>
+                  <FontAwesomeIcon icon={faCartPlus} aria-hidden="true" />
+                  Nueva orden
+                </Link>
+              </Tooltip>
             )}
           </>
         }

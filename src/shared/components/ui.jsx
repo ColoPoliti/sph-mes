@@ -2,6 +2,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import AnimatedCounter from '@/shared/components/AnimatedCounter';
 // Colores, textos e íconos de los chips: en lib/estados.js (también los usan los modales de calidad)
 import { CHIP_ESTADO, CHIP_VARIANTS, estadoChip, etapaChip } from '@/shared/lib/estados';
+import Tooltip from './Tooltip';
 
 // grande: para datos destacados (ej.: fechas de la etiqueta digital)
 // icono (opcional): ícono de FontAwesome antes del texto. mayus: texto en mayúsculas (chips de estado)
@@ -43,6 +44,10 @@ export function SwitchAprobar({ lote, onAprobar, deshabilitado = false, conTexto
   const aprobado = lote.estado === 'aprobado';
   return (
     <span className="inline-flex items-center gap-2">
+      <Tooltip
+        className="contents"
+        texto={deshabilitado ? 'Solo Calidad o el administrador pueden aprobar' : aprobado ? 'Quitar la aprobación del lote' : 'Aprobar el lote'}
+      >
       <button
         type="button"
         role="switch"
@@ -50,7 +55,6 @@ export function SwitchAprobar({ lote, onAprobar, deshabilitado = false, conTexto
         onClick={() => onAprobar(lote, !aprobado)}
         disabled={deshabilitado}
         aria-label={`Aprobar el lote #${lote.id} ${lote.nombre_producto}`}
-        title={deshabilitado ? 'Solo Calidad o el administrador pueden aprobar' : undefined}
         className={`relative inline-flex h-6 w-11 flex-none cursor-pointer items-center rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
           aprobado ? 'bg-teal-600 dark:bg-teal-400' : 'bg-gray-300 dark:bg-slate-700'
         }`}
@@ -61,6 +65,7 @@ export function SwitchAprobar({ lote, onAprobar, deshabilitado = false, conTexto
           }`}
         />
       </button>
+      </Tooltip>
       {conTexto && (
         <span
           aria-hidden="true"

@@ -8,6 +8,7 @@ import { useConsulta } from '@/shared/hooks/useConsulta';
 import { toast } from '@/shared/lib/alertas';
 import { useSesion } from '@/shared/lib/auth';
 import { BASE_KG, INSUMOS, TAMANOS_TOLVA, aKg, aPantalla, getReceta, guardarReceta } from '../lib/api';
+import Tooltip from '@/shared/components/Tooltip';
 
 const cant = (v) => Number(v || 0).toLocaleString('es-AR', { maximumFractionDigits: 3 });
 const OTROS = TAMANOS_TOLVA.filter((t) => t !== BASE_KG);
@@ -85,10 +86,12 @@ function Formulario({ receta }) {
         descripcion="Maestro de tolvas"
         icono={faFlask}
         acciones={
-          <Link to="/administracion/tolvas" className={BOTON.secundario}>
-            <FontAwesomeIcon icon={faListUl} aria-hidden="true" />
-            Volver al listado
-          </Link>
+          <Tooltip texto="Volver al listado del maestro de tolvas">
+            <Link to="/administracion/tolvas" className={BOTON.secundario}>
+              <FontAwesomeIcon icon={faListUl} aria-hidden="true" />
+              Volver al listado
+            </Link>
+          </Tooltip>
         }
       />
 

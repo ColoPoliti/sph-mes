@@ -1,5 +1,9 @@
 // Gráficos chicos de las tarjetas de inicio. Cada valor también se puede leer sin pasar el mouse:
 // en la leyenda, en los rótulos o en la lista para lectores de pantalla.
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faClock } from '@fortawesome/free-solid-svg-icons';
+import AnimatedCounter from '@/shared/components/AnimatedCounter';
+import { FLECHA_ARRIBA } from '@/shared/components/Tooltip';
 import { colorEstado, trazoEstado } from './colores';
 
 const TEXTO_VACIO = 'm-0 text-center text-[14px] font-medium text-gray-600 dark:text-slate-300';
@@ -8,7 +12,7 @@ const TEXTO_VACIO = 'm-0 text-center text-[14px] font-medium text-gray-600 dark:
 function Globo({ children }) {
   return (
     <span
-      className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-1.5 hidden -translate-x-1/2 whitespace-nowrap bg-slate-950 px-2 py-1 text-[13px] font-semibold text-white shadow-md group-hover/marca:block dark:bg-slate-700"
+      className={`pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 hidden -translate-x-1/2 whitespace-nowrap rounded bg-slate-950 px-2 py-1 text-[13px] font-semibold text-white shadow-md group-hover/marca:block dark:bg-slate-700 ${FLECHA_ARRIBA}`}
       aria-hidden="true"
     >
       {children}
@@ -90,7 +94,7 @@ function Dona({ segmentos, centro, vacio }) {
 
   return (
     <div className="flex flex-col items-center gap-3">
-      <svg viewBox="0 0 100 100" className="h-48 w-48 flex-none" role="img" aria-label={`${centro.valor} ${centro.etiqueta}. ${resumen}`}>
+      <svg viewBox="0 0 100 100" className="h-36 w-36 flex-none" role="img" aria-label={`${centro.valor} ${centro.etiqueta}. ${resumen}`}>
         {/* pathLength 100: cada tramo se mide directamente en porcentaje del perímetro. Arranca arriba (rotación de -90°) */}
         <g transform="rotate(-90 50 50)">
           {tramos.map((t) => {
@@ -211,26 +215,108 @@ function Medidor({ titulo, valor, total, vacio }) {
   );
 }
 
-/** PLC en ejecución, en vivo, con la etapa y su avance. */
-function ListaPlc({ plcs }) {
+// Rótulo de las barras: el mismo de la card de la sala en Monitoreo
+const ROTULO_BARRA = 'whitespace-nowrap text-[11px] font-light uppercase tracking-[0.6px] text-gray-600 dark:text-slate-300';
+
+/** Barra vertical igual a la de Monitoreo: rótulo arriba, relleno desde abajo y porcentaje debajo. */
+function BarraPlc({ etiqueta, valor, color }) {
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <span className={ROTULO_BARRA}>{etiqueta}</span>
+      {/* Más alta que en Monitoreo (240 px) para aprovechar la card de dos filas */}
+      <div
+        className="relative h-60 w-14 overflow-hidden rounded-lg bg-gray-200 dark:bg-slate-800"
+        role="progressbar"
+        aria-label={etiqueta}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={Math.round(valor)}
+      >
+        <div className={`absolute inset-x-0 bottom-0 rounded-md ${color}`} style={{ height: `${valor}%` }} />
+      </div>
+      <span className="text-base font-bold">
+        <AnimatedCounter value={valor} decimals={0} /> %
+      </span>
+    </div>
+  );
+}
+
+/** Versión chica (Monitoreo fuera del lugar alto): por PLC, solo el título, el estado con su indicador y el tiempo. */
+function ListaPlcResumida({ plcs }) {
+  return (
+    <ul className="m-0 flex list-none flex-col gap-3 p-0">
+      {plcs.map((p) => (
+        <li key={p.clave} className="flex flex-col gap-1.5 border-b border-gray-200 pb-3 last:border-0 last:pb-0 dark:border-white/[.12]">
+          <span className="truncate text-[15px] font-extrabold leading-tight text-gray-900 dark:text-white" title={`${p.producto} · ${p.nombre}`}>
+            {p.producto}
+          </span>
+          <span className="flex items-center gap-2">
+            <span className="flex min-w-0 animate-pulse items-center gap-2 text-sm font-bold text-gray-900 motion-reduce:animate-none dark:text-white">
+              <span className="h-2.5 w-2.5 flex-none rounded-full bg-violet-600 dark:bg-violet-400" aria-hidden="true" />
+              <span className="truncate">{p.estadoTxt}</span>
+            </span>
+            <span className="ml-auto flex flex-none items-center gap-1.5 rounded-lg border border-violet-500 bg-violet-100 px-2 py-0.5 text-[14px] font-bold tabular-nums text-violet-800 dark:border-white dark:bg-white/20 dark:text-white">
+              <FontAwesomeIcon icon={faClock} className="text-[11px]" aria-hidden="true" />
+              <span className="sr-only">Tiempo de la etapa: </span>
+              {p.tiempo}
+            </span>
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** PLC en ejecución, en vivo: etapa, tiempo de la etapa y barras de válvula y peso cargado (como en Monitoreo). */
+function ListaPlc({ plcs, resumido = false }) {
   if (!plcs.length) return <p className={TEXTO_VACIO}>Ningún PLC en ejecución.</p>;
+  if (resumido) return <ListaPlcResumida plcs={plcs} />;
 
   return (
-    <ul className="m-0 flex list-none flex-col gap-2 p-0">
+    <ul className="m-0 flex list-none flex-col gap-4 p-0">
       {plcs.map((p) => (
-        <li key={p.clave} className="flex flex-col gap-2">
-          <span className="flex items-center gap-2 text-[14px]">
+        <li key={p.clave} className="flex flex-col items-center gap-3 border-b border-gray-200 pb-4 last:border-0 last:pb-0 dark:border-white/[.12]">
+          {/* Título: producto del lote en elaboración, con SKU y tolva debajo (como el encabezado de Monitoreo) */}
+          <span className="flex w-full flex-col gap-0.5 text-center">
+            <span className="text-[17px] font-extrabold leading-tight text-gray-900 [overflow-wrap:anywhere] dark:text-white">{p.producto}</span>
+            {p.subtitulo && <span className="whitespace-pre text-[13px] font-medium text-gray-600 dark:text-slate-300">{p.subtitulo}</span>}
+          </span>
+          <span className="flex w-full items-center gap-2 text-[14px]">
             <span className={`h-2 w-2 flex-none rounded-full ${colorEstado(p.estado)}`} aria-hidden="true" />
             <span className="flex-none font-bold text-gray-900 dark:text-white">{p.nombre}</span>
             <span className="ml-auto min-w-0 truncate font-medium text-gray-600 dark:text-slate-300" title={p.detalle}>
               {p.texto}
             </span>
           </span>
-          {p.avance !== null && (
-            <span className="block h-3 overflow-hidden rounded-full bg-gray-200 dark:bg-slate-700" aria-hidden="true">
-              <span className="block h-full rounded-full bg-emerald-600" style={{ width: `${Math.round(p.avance * 100)}%` }} />
+          {/* Tiempo de la etapa: mismo recuadro y ancho que en Monitoreo */}
+          <div className="flex w-[168px] items-center justify-center rounded-lg border border-violet-500 bg-violet-100 px-2 py-1 shadow-sm backdrop-blur-md dark:border-white dark:bg-white/20 dark:shadow-none">
+            <span className="flex items-center gap-1.5 whitespace-nowrap text-[15px] font-bold leading-tight tabular-nums text-violet-800 dark:text-white">
+              <FontAwesomeIcon icon={faClock} className="text-[12px]" aria-hidden="true" />
+              <span className="sr-only">Tiempo de la etapa: </span>
+              {p.tiempo}
             </span>
-          )}
+          </div>
+          <div className="grid w-[216px] flex-none grid-cols-2 gap-2">
+            <BarraPlc etiqueta="Válvula" valor={p.valvula ?? 0} color="bg-violet-600 dark:bg-violet-500" />
+            <BarraPlc etiqueta="Peso cargado" valor={p.cargado} color="bg-teal-600 dark:bg-teal-400" />
+          </div>
+          {/* Estado con su indicador (punto violeta con pulse sutil) y barritas de etapas, igual que en Monitoreo */}
+          <div className="flex w-full flex-col gap-2">
+            <span className="flex animate-pulse items-center gap-2 text-sm font-bold text-gray-900 motion-reduce:animate-none dark:text-white">
+              <span className="h-2.5 w-2.5 flex-none rounded-full bg-violet-600 dark:bg-violet-400" aria-hidden="true" />
+              {p.estadoTxt}
+            </span>
+            <div className="flex gap-1" aria-hidden="true">
+              {p.segs.map((v, i) => (
+                <span key={i} className="h-[5px] flex-1 overflow-hidden rounded-[3px] bg-gray-200 dark:bg-slate-800">
+                  <span
+                    className={`block h-full rounded-[3px] ${v >= 100 ? 'bg-teal-600 dark:bg-teal-400' : 'bg-violet-600 dark:bg-violet-500'}`}
+                    style={{ width: `${v}%` }}
+                  />
+                </span>
+              ))}
+            </div>
+          </div>
         </li>
       ))}
     </ul>

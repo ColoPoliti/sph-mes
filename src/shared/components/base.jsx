@@ -7,6 +7,7 @@ import AnimatedCounter from './AnimatedCounter';
 import { labelClass, subClass } from './ui';
 
 import { CARD, CARD_RELLENO, CAMPO, ESTADOS_KPI } from './clases';
+import Tooltip from '@/shared/components/Tooltip';
 
 // ---------- Componentes ----------
 
@@ -71,7 +72,7 @@ const TONOS_KPI = {
  * `compacto`: todo en una sola línea (etiqueta a la izquierda, valor a la derecha) y valor más chico.
  *   Para filas donde los KPI comparten espacio con otras cards. Si no entra, la etiqueta se corta con …
  */
-export function Kpi({ titulo, valor, decimales = 0, sufijo, detalle, icono, tono = 'teal', to, estado, compacto = false }) {
+export function Kpi({ titulo, valor, decimales = 0, sufijo, detalle, icono, tono = 'teal', to, estado, compacto = false, ayuda }) {
   const estilo = ESTADOS_KPI[estado] || null;
   if (estilo) tono = estilo.tono;
 
@@ -113,9 +114,12 @@ export function Kpi({ titulo, valor, decimales = 0, sufijo, detalle, icono, tono
     : CARD;
   const clase = `${base} ${disposicion}`;
   return to ? (
-    <Link to={to} className={`${clase} transition-transform hover:-translate-y-0.5`}>
-      {contenido}
-    </Link>
+    // `ayuda`: texto del globo; si no se pasa, "Ver <titulo>"
+    <Tooltip as="div" ancho="ancho" texto={ayuda || `Ver ${String(titulo).toLowerCase()}`} className="flex flex-col">
+      <Link to={to} className={`${clase} flex-1 transition-transform hover:-translate-y-0.5`}>
+        {contenido}
+      </Link>
+    </Tooltip>
   ) : (
     <div className={clase}>{contenido}</div>
   );

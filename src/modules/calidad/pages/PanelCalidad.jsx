@@ -14,6 +14,7 @@ import { getRecepciones } from '@/modules/compras/lib/api';
 import { mostrarInfoLote } from '../lib/alertasCalidad';
 import { useAprobacionCalidad } from '../lib/useAprobacionCalidad';
 import { SIN_REVISAR, useLotesCalidad } from '../lib/useLotesCalidad';
+import Tooltip from '@/shared/components/Tooltip';
 
 export default function PanelCalidad() {
   const { filas, setFilas, cargando, error } = useLotesCalidad(6);
@@ -32,9 +33,9 @@ export default function PanelCalidad() {
       <Encabezado titulo="Panel de calidad" descripcion="Últimos 7 días de producción." icono={faClipboardCheck} />
 
       <GrillaKpi>
-        <Kpi titulo="Lotes a liberar" valor={pendientes.length} icono={faListCheck} tono="ambar" to="/calidad/pendientes" />
-        <Kpi titulo="Aprobados" valor={aprobados} icono={faCircleCheck} tono="cielo" to="/calidad/decisiones" />
-        <Kpi titulo="Rechazados" valor={rechazados} icono={faCircleXmark} tono="rojo" to="/calidad/decisiones" />
+        <Kpi titulo="Lotes a liberar" valor={pendientes.length} icono={faListCheck} tono="ambar" to="/calidad/pendientes" ayuda="Ver los lotes elaborados pendientes de liberación" />
+        <Kpi titulo="Aprobados" valor={aprobados} icono={faCircleCheck} tono="cielo" to="/calidad/decisiones" ayuda="Ver el registro de decisiones (aprobados)" />
+        <Kpi titulo="Rechazados" valor={rechazados} icono={faCircleXmark} tono="rojo" to="/calidad/decisiones" ayuda="Ver el registro de decisiones (rechazados)" />
         <Kpi
           titulo="Tasa de aprobación"
           valor={revisados ? (aprobados / revisados) * 100 : 0}
@@ -47,21 +48,25 @@ export default function PanelCalidad() {
       </GrillaKpi>
 
       {ingresos.length > 0 && (
-        <Link
+        <Tooltip texto="Ir a Ingresos de MP para inspeccionar las recepciones pendientes" as="div" className="flex flex-col"><Link
           to="/calidad/ingresos"
           className="flex items-center gap-3 rounded-md border border-amber-500/50 bg-amber-500/15 px-4 py-3 text-[15px] font-semibold text-amber-800 transition-colors hover:bg-amber-500/25 dark:text-amber-200"
         >
           <span className="text-xl" aria-hidden="true">⚑</span>
           {ingresos.length} {ingresos.length === 1 ? 'ingreso de materia prima espera' : 'ingresos de materia prima esperan'} inspección.
           <span className="ml-auto underline">Inspeccionar</span>
-        </Link>
+        </Link></Tooltip>
       )}
 
       <Card className="flex flex-col gap-2.5">
         <CardTitulo
           icono={faFlaskVial}
           extra="Los más antiguos primero"
-          acciones={<Link to="/calidad/pendientes" className="text-sm font-bold text-violet-700 underline dark:text-violet-300">Ver bandeja completa</Link>}
+          acciones={
+            <Tooltip texto="Ver todos los lotes pendientes de liberación" posicion="abajo">
+              <Link to="/calidad/pendientes" className="text-sm font-bold text-violet-700 underline dark:text-violet-300">Ver bandeja completa</Link>
+            </Tooltip>
+          }
         >
           Pendientes de liberación
         </CardTitulo>

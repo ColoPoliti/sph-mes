@@ -12,6 +12,7 @@ import { bajoMinimo } from '../lib/api';
 import { cantidad, pesos } from '../lib/estados';
 import { useDatosCompras } from '../lib/useDatosCompras';
 import { BarraStock } from '../components/Chips';
+import Tooltip from '@/shared/components/Tooltip';
 
 export default function MateriasPrimas() {
   const { puede } = useSesion();
@@ -90,9 +91,9 @@ export default function MateriasPrimas() {
       alinear: 'right',
       celda: (m) =>
         puede('compras.editar') && (
-          <Link to={`/compras/ordenes/nueva?mp=${encodeURIComponent(m.codigo)}`} className="font-bold text-violet-700 underline dark:text-violet-300">
+          <Tooltip texto={`Crear una orden de compra para ${m.nombre || m.codigo}`}><Link to={`/compras/ordenes/nueva?mp=${encodeURIComponent(m.codigo)}`} className="font-bold text-violet-700 underline dark:text-violet-300">
             Pedir
-          </Link>
+          </Link></Tooltip>
         ),
     },
   ];

@@ -23,6 +23,7 @@ import { TAMANOS_TOLVA } from '@/modules/administracion/lib/api';
 import { cantidad, fecha } from '../lib/formato';
 import { ESTADOS_REVISION, estadoRevision } from '../lib/revision';
 import ChipRevision from '../components/ChipRevision';
+import Tooltip from '@/shared/components/Tooltip';
 
 const BOTON_ICONO =
   'inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700';
@@ -198,26 +199,28 @@ export default function Ordenes() {
               const aviso = bloqueada ? 'Quitá el orden por columna para cambiar la prioridad' : undefined;
               return (
                 <span className="inline-flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    className={BOTON_ICONO}
-                    onClick={() => mover(g, i, i - 1)}
-                    disabled={i === 0 || bloqueada}
-                    title={aviso}
-                    aria-label={`Subir la prioridad de la orden ${o.numero}`}
-                  >
-                    <FontAwesomeIcon icon={faArrowUp} aria-hidden="true" />
-                  </button>
+                  <Tooltip className="contents" texto={aviso || 'Subir la prioridad'}>
+                    <button
+                      type="button"
+                      className={BOTON_ICONO}
+                      onClick={() => mover(g, i, i - 1)}
+                      disabled={i === 0 || bloqueada}
+                      aria-label={`Subir la prioridad de la orden ${o.numero}`}
+                    >
+                      <FontAwesomeIcon icon={faArrowUp} aria-hidden="true" />
+                    </button>
+                  </Tooltip>
+                  <Tooltip className="contents" texto={aviso || 'Bajar la prioridad'}>
                   <button
                     type="button"
                     className={BOTON_ICONO}
                     onClick={() => mover(g, i, i + 1)}
                     disabled={i === g.ordenes.length - 1 || bloqueada}
-                    title={aviso}
                     aria-label={`Bajar la prioridad de la orden ${o.numero}`}
                   >
                     <FontAwesomeIcon icon={faArrowDown} aria-hidden="true" />
                   </button>
+                  </Tooltip>
                   <label className="sr-only" htmlFor={`linea-${o.numero}`}>
                     Línea de la orden {o.numero}
                   </label>
