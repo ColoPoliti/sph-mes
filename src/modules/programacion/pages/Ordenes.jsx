@@ -11,14 +11,17 @@ import {
   faRightLeft,
 } from '@fortawesome/free-solid-svg-icons';
 import { Card, CardTitulo, Encabezado, EstadoConsulta, Nota } from '@/shared/components/base';
-import { BOTON, INPUT, TD, TH } from '@/shared/components/clases';
+import DataTable from '@/shared/components/DataTable';
+import { BOTON, INPUT } from '@/shared/components/clases';
 import { Chip } from '@/shared/components/ui';
 import { useConsulta } from '@/shared/hooks/useConsulta';
 import { useSesion } from '@/shared/lib/auth';
 import { confirmar, toast } from '@/shared/lib/alertas';
+import { num } from '@/shared/lib/format';
 import { asignarTolva, getOrdenesBejerman, moverOrden, porLinea, reasignarLinea } from '../lib/api';
 import { TAMANOS_TOLVA } from '@/modules/administracion/lib/api';
 import { cantidad, fecha } from '../lib/formato';
+import { ESTADOS_REVISION, estadoRevision } from '../lib/revision';
 import ChipRevision from '../components/ChipRevision';
 
 const BOTON_ICONO =
@@ -95,6 +98,151 @@ export default function Ordenes() {
     </button>
   );
 
+  // Columnas de la cola de una línea. Las flechas se apagan si la tabla está ordenada por otra
+  // columna: la fila no quedaría junto a la orden con la que intercambia prioridad.
+  const columnasDe = (g) => [
+    {
+      id: 'prioridad',
+      titulo: 'Prioridad',
+      valor: (o) => o.prioridad,
+      clase: 'text-[18px] font-extrabold tabular-nums text-teal-600 dark:text-teal-400',
+    },
+    {
+      id: 'numero',
+      titulo: 'N° producción',
+      valor: (o) => o.numero,
+      celda: (o) => (
+        <>
+          {o.numero}
+          {o.reasignacion && (
+            <span className="ml-2" title={`Reasignada por ${o.reasignacion.usuario}`}>
+              <Chip tipo="inc" icono={faRightLeft}>
+                Línea original {o.linea_bejerman}
+              </Chip>
+            </span>
+          )}
+        </>
+      ),
+      clase: 'codigo font-bold tabular-nums',
+    },
+    { id: 'producto', titulo: 'Producto', valor: (o) => o.producto },
+    {
+      id: 'codigo',
+      titulo: 'Código de barras',
+      valor: (o) => o.codigo_barras,
+      celda: (o) => (
+        <>
+          <FontAwesomeIcon icon={faBarcode} className="mr-2 text-gray-400" aria-hidden="true" />
+          {o.codigo_barras || '—'}
+        </>
+      ),
+      clase: 'codigo whitespace-nowrap tabular-nums',
+    },
+    { id: 'cantidad', titulo: 'Cantidad', alinear: 'right', valor: (o) => num(o.cantidad), celda: (o) => cantidad(o.cantidad), clase: 'font-bold tabular-nums' },
+    {
+      id: 'tolva',
+      titulo: 'Tolva',
+      valor: (o) => o.tolva_kg,
+      celda: (o) =>
+        puedeCambiar ? (
+          <>
+            <label className="sr-only" htmlFor={`tolva-${o.numero}`}>
+              Tamaño de tolva de la orden {o.numero}
+            </label>
+            <select
+              id={`tolva-${o.numero}`}
+              className={`${INPUT} !min-h-9 w-auto py-1 text-sm`}
+              value={o.tolva_kg ?? ''}
+              onChange={(e) => cambiarTolva(o, e.target.value)}
+            >
+              {o.tolva_kg === null && <option value="">Sin definir</option>}
+              {TAMANOS_TOLVA.map((t) => (
+                <option key={t} value={t}>
+                  {t} kg
+                </option>
+              ))}
+            </select>
+          </>
+        ) : o.tolva_kg ? (
+          `${o.tolva_kg} kg`
+        ) : (
+          <Chip tipo="inc">Sin definir</Chip>
+        ),
+      clase: 'whitespace-nowrap tabular-nums',
+    },
+    { id: 'lote', titulo: 'Lote', valor: (o) => o.lote, clase: 'codigo tabular-nums' },
+    {
+      id: 'vencimiento',
+      titulo: 'Vencimiento',
+      valor: (o) => o.vencimiento,
+      texto: (o) => fecha(o.vencimiento),
+      celda: (o) => fecha(o.vencimiento),
+      clase: 'tabular-nums',
+    },
+    {
+      id: 'calidad',
+      titulo: 'Calidad',
+      valor: (o) => ESTADOS_REVISION[estadoRevision(o)]?.texto,
+      celda: (o) => <ChipRevision orden={o} />,
+      clase: 'whitespace-nowrap',
+    },
+    ...(puedeCambiar
+      ? [
+          {
+            id: 'cambiar',
+            titulo: 'Cambiar',
+            alinear: 'right',
+            celda: (o, { orden }) => {
+              const i = o.prioridad - 1;
+              const bloqueada = Boolean(orden) && orden.id !== 'prioridad';
+              const aviso = bloqueada ? 'Quitá el orden por columna para cambiar la prioridad' : undefined;
+              return (
+                <span className="inline-flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    className={BOTON_ICONO}
+                    onClick={() => mover(g, i, i - 1)}
+                    disabled={i === 0 || bloqueada}
+                    title={aviso}
+                    aria-label={`Subir la prioridad de la orden ${o.numero}`}
+                  >
+                    <FontAwesomeIcon icon={faArrowUp} aria-hidden="true" />
+                  </button>
+                  <button
+                    type="button"
+                    className={BOTON_ICONO}
+                    onClick={() => mover(g, i, i + 1)}
+                    disabled={i === g.ordenes.length - 1 || bloqueada}
+                    title={aviso}
+                    aria-label={`Bajar la prioridad de la orden ${o.numero}`}
+                  >
+                    <FontAwesomeIcon icon={faArrowDown} aria-hidden="true" />
+                  </button>
+                  <label className="sr-only" htmlFor={`linea-${o.numero}`}>
+                    Línea de la orden {o.numero}
+                  </label>
+                  <select
+                    id={`linea-${o.numero}`}
+                    className={`${INPUT} !min-h-9 w-auto py-1 text-sm`}
+                    value={o.linea}
+                    onChange={(e) => cambiarLinea(o, e.target.value)}
+                    disabled={lineas.length < 2}
+                  >
+                    {lineas.map((l) => (
+                      <option key={l.linea} value={l.linea}>
+                        Línea {l.linea}
+                      </option>
+                    ))}
+                  </select>
+                </span>
+              );
+            },
+            clase: 'whitespace-nowrap',
+          },
+        ]
+      : []),
+  ];
+
   return (
     <div className="flex flex-col gap-6">
       <Encabezado
@@ -147,124 +295,16 @@ export default function Ordenes() {
           <EstadoConsulta vacio={!g.filas.length} textoVacio="Ninguna orden cumple con la búsqueda." />
 
           {g.filas.length > 0 && (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[1160px]">
-                <caption className="sr-only">Órdenes de producción de la línea {g.linea}</caption>
-                <thead>
-                  <tr>
-                    <th scope="col" className={`${TH} text-left`}>Prioridad</th>
-                    <th scope="col" className={`${TH} text-left`}>N° producción</th>
-                    <th scope="col" className={`${TH} text-left`}>Producto</th>
-                    <th scope="col" className={`${TH} text-left`}>Código de barras</th>
-                    <th scope="col" className={`${TH} text-right`}>Cantidad</th>
-                    <th scope="col" className={`${TH} text-left`}>Tolva</th>
-                    <th scope="col" className={`${TH} text-left`}>Lote</th>
-                    <th scope="col" className={`${TH} text-left`}>Vencimiento</th>
-                    <th scope="col" className={`${TH} text-left`}>Calidad</th>
-                    {puedeCambiar && <th scope="col" className={`${TH} text-right`}>Cambiar</th>}
-                  </tr>
-                </thead>
-                <tbody>
-                  {g.filas.map((o) => {
-                    const i = o.prioridad - 1;
-                    return (
-                      <tr key={o.numero} className="border-t border-gray-200 dark:border-slate-800">
-                        <td className={`${TD} text-[18px] font-extrabold tabular-nums text-teal-600 dark:text-teal-400`}>
-                          {o.prioridad}
-                        </td>
-                        <td className={`${TD} font-bold tabular-nums`}>
-                          {o.numero}
-                          {o.reasignacion && (
-                            <span className="ml-2" title={`Reasignada por ${o.reasignacion.usuario}`}>
-                              <Chip tipo="inc" icono={faRightLeft}>
-                                Línea original {o.linea_bejerman}
-                              </Chip>
-                            </span>
-                          )}
-                        </td>
-                        <td className={TD}>{o.producto || '—'}</td>
-                        <td className={`${TD} whitespace-nowrap tabular-nums`}>
-                          <FontAwesomeIcon icon={faBarcode} className="mr-2 text-gray-400" aria-hidden="true" />
-                          {o.codigo_barras || '—'}
-                        </td>
-                        <td className={`${TD} text-right font-bold tabular-nums`}>{cantidad(o.cantidad)}</td>
-                        <td className={`${TD} whitespace-nowrap tabular-nums`}>
-                          {puedeCambiar ? (
-                            <>
-                              <label className="sr-only" htmlFor={`tolva-${o.numero}`}>
-                                Tamaño de tolva de la orden {o.numero}
-                              </label>
-                              <select
-                                id={`tolva-${o.numero}`}
-                                className={`${INPUT} !min-h-9 w-auto py-1 text-sm`}
-                                value={o.tolva_kg ?? ''}
-                                onChange={(e) => cambiarTolva(o, e.target.value)}
-                              >
-                                {o.tolva_kg === null && <option value="">Sin definir</option>}
-                                {TAMANOS_TOLVA.map((t) => (
-                                  <option key={t} value={t}>
-                                    {t} kg
-                                  </option>
-                                ))}
-                              </select>
-                            </>
-                          ) : o.tolva_kg ? (
-                            `${o.tolva_kg} kg`
-                          ) : (
-                            <Chip tipo="inc">Sin definir</Chip>
-                          )}
-                        </td>
-                        <td className={`${TD} tabular-nums`}>{o.lote || '—'}</td>
-                        <td className={`${TD} tabular-nums`}>{fecha(o.vencimiento)}</td>
-                        <td className={`${TD} whitespace-nowrap`}>
-                          <ChipRevision orden={o} />
-                        </td>
-                        {puedeCambiar && (
-                          <td className={`${TD} whitespace-nowrap text-right`}>
-                            <span className="inline-flex items-center gap-1.5">
-                              <button
-                                type="button"
-                                className={BOTON_ICONO}
-                                onClick={() => mover(g, i, i - 1)}
-                                disabled={i === 0}
-                                aria-label={`Subir la prioridad de la orden ${o.numero}`}
-                              >
-                                <FontAwesomeIcon icon={faArrowUp} aria-hidden="true" />
-                              </button>
-                              <button
-                                type="button"
-                                className={BOTON_ICONO}
-                                onClick={() => mover(g, i, i + 1)}
-                                disabled={i === g.ordenes.length - 1}
-                                aria-label={`Bajar la prioridad de la orden ${o.numero}`}
-                              >
-                                <FontAwesomeIcon icon={faArrowDown} aria-hidden="true" />
-                              </button>
-                              <label className="sr-only" htmlFor={`linea-${o.numero}`}>
-                                Línea de la orden {o.numero}
-                              </label>
-                              <select
-                                id={`linea-${o.numero}`}
-                                className={`${INPUT} !min-h-9 w-auto py-1 text-sm`}
-                                value={o.linea}
-                                onChange={(e) => cambiarLinea(o, e.target.value)}
-                                disabled={lineas.length < 2}
-                              >
-                                {lineas.map((l) => (
-                                  <option key={l.linea} value={l.linea}>
-                                    Línea {l.linea}
-                                  </option>
-                                ))}
-                              </select>
-                            </span>
-                          </td>
-                        )}
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+            <DataTable
+              titulo={`Órdenes de producción de la línea ${g.linea}`}
+              columnas={columnasDe(g)}
+              filas={g.filas}
+              clave={(o) => o.numero}
+              minWidth={1160}
+              buscador={false}
+              porPagina={25}
+              exportar={`ordenes-linea-${g.linea}.csv`}
+            />
           )}
         </Card>
       ))}

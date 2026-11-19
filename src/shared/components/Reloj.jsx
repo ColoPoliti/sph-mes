@@ -20,7 +20,7 @@ export default function Reloj({ className = '' }) {
       title={fecha(ahora)}
       className={`flex-none items-center gap-2 text-[15px] font-bold tabular-nums text-gray-900 dark:text-white ${className}`}
     >
-      <FontAwesomeIcon icon={faClock} className="text-sm text-gray-500 dark:text-slate-400" aria-hidden="true" />
+      <FontAwesomeIcon icon={faClock} className="text-sm text-gray-600 dark:text-slate-300" aria-hidden="true" />
       {hora(ahora)}
     </time>
   );

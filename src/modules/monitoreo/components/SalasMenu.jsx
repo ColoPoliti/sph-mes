@@ -65,10 +65,10 @@ export default function SalasMenu({ open, onNavegar }) {
                   className="w-4 flex-none text-slate-800 dark:text-white"
                   aria-hidden="true"
                 />
-                <span className="min-w-0 flex-1 truncate text-[11px] font-extrabold uppercase tracking-[1px] text-slate-800 dark:text-white">
+                <span className="min-w-0 flex-1 truncate text-[12px] font-extrabold uppercase tracking-[1px] text-slate-800 dark:text-white">
                   {area.label}
                 </span>
-                <span className="whitespace-nowrap rounded-md bg-gray-100 px-2 py-0.5 text-[11px] font-extrabold text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                <span className="whitespace-nowrap rounded-md bg-gray-100 px-2 py-0.5 text-[12px] font-extrabold text-slate-700 dark:bg-slate-800 dark:text-slate-200">
                   {area.plcs.length} PLC
                 </span>
                 <IconChevron

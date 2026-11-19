@@ -94,7 +94,7 @@ export function ModuloTabs({ className = '' }) {
   };
 
   const flecha =
-    'absolute top-0 z-10 flex h-full w-10 cursor-pointer items-center text-gray-500 hover:text-gray-900 dark:text-slate-400 dark:hover:text-white';
+    'absolute top-0 z-10 flex h-full w-10 cursor-pointer items-center text-gray-600 hover:text-gray-900 dark:text-slate-300 dark:hover:text-white';
 
   return (
     <div
@@ -129,8 +129,8 @@ export function ModuloTabs({ className = '' }) {
                 isActive
                   ? 'text-gray-900 after:absolute after:inset-x-2 after:bottom-0 after:h-[3px] after:rounded-t-full after:bg-teal-600 dark:text-white dark:after:bg-teal-400'
                   : m.bloqueado
-                    ? 'text-gray-400 hover:text-gray-700 dark:text-slate-500 dark:hover:text-slate-300'
-                    : 'text-gray-500 hover:text-gray-900 dark:text-slate-400 dark:hover:text-white'
+                    ? 'text-gray-400 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-300'
+                    : 'text-gray-600 hover:text-gray-900 dark:text-slate-300 dark:hover:text-white'
               }`
             }
           >
@@ -241,7 +241,7 @@ export function ModuloSelector({ className = '' }) {
               <div className="mb-3 flex items-center justify-between">
                 <h2
                   id="modulos-titulo"
-                  className="text-[11px] font-extrabold uppercase tracking-[1.6px] text-gray-500 dark:text-slate-400"
+                  className="text-[12px] font-extrabold uppercase tracking-[1.6px] text-gray-600 dark:text-slate-300"
                 >
                   Módulos
                 </h2>
@@ -249,7 +249,7 @@ export function ModuloSelector({ className = '' }) {
                   type="button"
                   onClick={cerrar}
                   aria-label="Cerrar"
-                  className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-[10px] text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+                  className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-[10px] text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
                 >
                   <FontAwesomeIcon icon={faXmark} className="text-lg" aria-hidden="true" />
                 </button>
@@ -268,7 +268,7 @@ export function ModuloSelector({ className = '' }) {
                         isActive
                           ? 'border-teal-600 bg-teal-50 text-gray-900 dark:border-teal-400 dark:bg-teal-950/40 dark:text-white'
                           : m.bloqueado
-                            ? 'border-gray-200 text-gray-400 hover:bg-gray-50 dark:border-slate-800 dark:text-slate-500 dark:hover:bg-slate-800'
+                            ? 'border-gray-200 text-gray-400 hover:bg-gray-50 dark:border-slate-800 dark:text-slate-400 dark:hover:bg-slate-800'
                             : 'border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800'
                       }`
                     }

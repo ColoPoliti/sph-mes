@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFloppyDisk, faPen, faPlus, faTruckField, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { Campo, Card, CardTitulo, Encabezado, EstadoConsulta } from '@/shared/components/base';
-import { BOTON, INPUT, TD, TH } from '@/shared/components/clases';
+import DataTable from '@/shared/components/DataTable';
+import { BOTON, INPUT } from '@/shared/components/clases';
 import { Chip } from '@/shared/components/ui';
 import { toast } from '@/shared/lib/alertas';
 import { useSesion } from '@/shared/lib/auth';
@@ -31,6 +32,56 @@ export default function Proveedores() {
     setAviso('');
     recargar();
   };
+
+  const columnas = [
+    { id: 'razon', titulo: 'Razón social', valor: (p) => p.razonSocial, clase: 'font-bold' },
+    { id: 'cuit', titulo: 'CUIT', valor: (p) => p.cuit, clase: 'tabular-nums' },
+    { id: 'rubro', titulo: 'Rubro', valor: (p) => p.rubro },
+    {
+      id: 'contacto',
+      titulo: 'Contacto',
+      valor: (p) => p.contacto,
+      texto: (p) => p.email,
+      celda: (p) => (
+        <>
+          {p.contacto || '—'}
+          {p.email && (
+            <>
+              <br />
+              <a href={`mailto:${p.email}`} className="text-[14px] text-teal-600 underline dark:text-teal-400">{p.email}</a>
+            </>
+          )}
+        </>
+      ),
+    },
+    {
+      id: 'estado',
+      titulo: 'Estado',
+      alinear: 'right',
+      valor: (p) => (p.activo ? 'Activo' : 'Inactivo'),
+      celda: (p) => <Chip tipo={p.activo ? 'ok' : 'neutro'} mayus>{p.activo ? 'Activo' : 'Inactivo'}</Chip>,
+    },
+    ...(editable
+      ? [
+          {
+            id: 'editar',
+            titulo: 'Editar',
+            oculto: true,
+            alinear: 'center',
+            celda: (p) => (
+              <button
+                type="button"
+                aria-label={`Editar ${p.razonSocial}`}
+                onClick={() => setForm({ ...VACIO, ...p })}
+                className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md text-violet-600 transition-colors hover:bg-gray-100 dark:text-violet-400 dark:hover:bg-slate-800"
+              >
+                <FontAwesomeIcon icon={faPen} aria-hidden="true" />
+              </button>
+            ),
+          },
+        ]
+      : []),
+  ];
 
   return (
     <div className="flex flex-col gap-6">
@@ -79,54 +130,15 @@ export default function Proveedores() {
       <Card className="flex flex-col gap-2.5">
         <EstadoConsulta cargando={cargando} error={error} vacio={!proveedores.length} />
         {proveedores.length > 0 && (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[820px]">
-              <caption className="sr-only">Proveedores</caption>
-              <thead>
-                <tr>
-                  <th scope="col" className={`${TH} text-left`}>Razón social</th>
-                  <th scope="col" className={`${TH} text-left`}>CUIT</th>
-                  <th scope="col" className={`${TH} text-left`}>Rubro</th>
-                  <th scope="col" className={`${TH} text-left`}>Contacto</th>
-                  <th scope="col" className={`${TH} text-right`}>Estado</th>
-                  {editable && <th scope="col" className={TH}><span className="sr-only">Editar</span></th>}
-                </tr>
-              </thead>
-              <tbody>
-                {proveedores.map((p) => (
-                  <tr key={p.id} className={`border-t border-gray-200 dark:border-slate-800 ${p.activo ? '' : 'opacity-60'}`}>
-                    <td className={`${TD} font-bold`}>{p.razonSocial}</td>
-                    <td className={`${TD} tabular-nums`}>{p.cuit || '—'}</td>
-                    <td className={TD}>{p.rubro || '—'}</td>
-                    <td className={TD}>
-                      {p.contacto || '—'}
-                      {p.email && (
-                        <>
-                          <br />
-                          <a href={`mailto:${p.email}`} className="text-[13px] text-teal-600 underline dark:text-teal-400">{p.email}</a>
-                        </>
-                      )}
-                    </td>
-                    <td className={`${TD} text-right`}>
-                      <Chip tipo={p.activo ? 'ok' : 'neutro'} mayus>{p.activo ? 'Activo' : 'Inactivo'}</Chip>
-                    </td>
-                    {editable && (
-                      <td className={`${TD} text-center`}>
-                        <button
-                          type="button"
-                          aria-label={`Editar ${p.razonSocial}`}
-                          onClick={() => setForm({ ...VACIO, ...p })}
-                          className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md text-violet-600 transition-colors hover:bg-gray-100 dark:text-violet-400 dark:hover:bg-slate-800"
-                        >
-                          <FontAwesomeIcon icon={faPen} aria-hidden="true" />
-                        </button>
-                      </td>
-                    )}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable
+            titulo="Proveedores"
+            columnas={columnas}
+            filas={proveedores}
+            clave={(p) => p.id}
+            minWidth={820}
+            claseFila={(p) => (p.activo ? '' : 'opacity-60')}
+            exportar="proveedores.csv"
+          />
         )}
       </Card>
     </div>

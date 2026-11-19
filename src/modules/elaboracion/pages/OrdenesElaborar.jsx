@@ -12,11 +12,13 @@ import {
   faPlus,
 } from '@fortawesome/free-solid-svg-icons';
 import { Card, CardTitulo, Encabezado, EstadoConsulta, Nota } from '@/shared/components/base';
-import { BOTON, TD, TH } from '@/shared/components/clases';
+import DataTable from '@/shared/components/DataTable';
+import { BOTON } from '@/shared/components/clases';
 import { Chip } from '@/shared/components/ui';
 import { useConsulta } from '@/shared/hooks/useConsulta';
 import { CLASES, alerta, esc, toast } from '@/shared/lib/alertas';
 import { useSesion } from '@/shared/lib/auth';
+import { num } from '@/shared/lib/format';
 import { asignarTolva, esenciaDe, evaluarLavado, getTolvas } from '@/shared/lib/tolvas';
 import { getOrdenesBejerman, porLinea } from '@/modules/programacion/lib/api';
 import { cantidad } from '@/modules/programacion/lib/formato';
@@ -142,6 +144,156 @@ export default function OrdenesElaborar() {
     </button>
   );
 
+  // Regla de lavado de una tolva vacía según la siguiente orden de su línea
+  const reglaDe = (t) => {
+    const sig = siguienteDe(t.linea);
+    return sig ? textoLavado(t, receta[codigoDe(sig)]) : null;
+  };
+
+  const columnasSucias = [
+    { id: 'tolva', titulo: 'Tolva', valor: (t) => t.codigo, clase: 'codigo font-bold tabular-nums' },
+    { id: 'linea', titulo: 'Línea', valor: (t) => t.linea, clase: 'tabular-nums' },
+    { id: 'esencia', titulo: 'Esencia que tenía', valor: (t) => t.esencia },
+    {
+      id: 'siguiente',
+      titulo: 'Siguiente orden de la línea',
+      valor: (t) => {
+        const sig = siguienteDe(t.linea);
+        return sig ? `${sig.numero} · ${sig.producto || ''}` : null;
+      },
+    },
+    {
+      id: 'lavado',
+      titulo: 'Lavado',
+      valor: (t) => reglaDe(t)?.texto,
+      celda: (t) => {
+        const regla = reglaDe(t);
+        return regla ? (
+          <Chip tipo={regla.r === 'no_lavar' ? 'ok' : 'inc'} icono={faBroom}>
+            {regla.texto}
+          </Chip>
+        ) : (
+          <Chip tipo="neutro">Sin orden siguiente con receta</Chip>
+        );
+      },
+      clase: 'whitespace-nowrap',
+    },
+  ];
+
+  // Insumos de la orden escalados a su tolva; null si falta la receta o el tamaño
+  const insumosDe = (o) => {
+    const r = receta[codigoDe(o)];
+    return r && o.tolva_kg ? escalar(r, o.tolva_kg) : null;
+  };
+
+  // Cola de una línea. La posición y "Siguiente" salen de la prioridad, no del orden en pantalla.
+  const columnasCola = (g) => [
+    {
+      id: 'posicion',
+      titulo: '#',
+      valor: (o) => g.aprobadas.indexOf(o) + 1,
+      clase: 'text-[18px] font-extrabold tabular-nums text-teal-600 dark:text-teal-400',
+    },
+    {
+      id: 'numero',
+      titulo: 'N° producción',
+      valor: (o) => o.numero,
+      celda: (o) => (
+        <>
+          {o.numero}
+          {g.aprobadas[0] === o && (
+            <span className="ml-2">
+              <Chip tipo="curso" icono={faPlay} mayus>
+                Siguiente
+              </Chip>
+            </span>
+          )}
+        </>
+      ),
+      clase: 'codigo whitespace-nowrap font-bold tabular-nums',
+    },
+    {
+      id: 'producto',
+      titulo: 'Producto',
+      valor: (o) => o.producto,
+      texto: (o) => `${o.codigo_barras ?? ''} ${o.lote ?? ''}`,
+      celda: (o) => (
+        <>
+          <span className="block">{o.producto || '—'}</span>
+          <span className="codigo block whitespace-nowrap text-[14px] text-gray-600 dark:text-slate-300">
+            <FontAwesomeIcon icon={faBarcode} className="mr-1.5" aria-hidden="true" />
+            {o.codigo_barras || '—'}
+            {o.lote ? ` · Lote ${o.lote}` : ''}
+          </span>
+        </>
+      ),
+    },
+    { id: 'cantidad', titulo: 'Cantidad', alinear: 'right', valor: (o) => num(o.cantidad), celda: (o) => cantidad(o.cantidad), clase: 'font-bold tabular-nums' },
+    {
+      id: 'tolva',
+      titulo: 'Tolva',
+      valor: (o) => o.tolva_kg,
+      celda: (o) => (o.tolva_kg ? `${o.tolva_kg} kg` : <Chip tipo="inc">Sin definir</Chip>),
+      clase: 'whitespace-nowrap tabular-nums',
+    },
+    ...INSUMOS.map((i, k) => ({
+      id: `insumo-${i.etapa}`,
+      titulo: `${i.nombre} (${i.unidad})`,
+      encabezado: (
+        <>
+          {i.nombre} <span className="normal-case">({i.unidad})</span>
+        </>
+      ),
+      alinear: 'right',
+      valor: (o) => num(aPantalla(insumosDe(o)?.find((x) => x.etapa === i.etapa)?.sp, i.unidad)),
+      // Sin receta o sin tolva, un solo aviso ocupa todas las columnas de insumos
+      span: (o) => (insumosDe(o) ? 1 : k === 0 ? INSUMOS.length : 0),
+      celda: (o) => {
+        const insumos = insumosDe(o);
+        if (!insumos) {
+          return (
+            <Chip tipo="neutro" icono={faFlask}>
+              {!receta[codigoDe(o)] ? 'Sin receta en el maestro' : 'Falta definir el tamaño de tolva en Programación'}
+            </Chip>
+          );
+        }
+        const ins = insumos.find((x) => x.etapa === i.etapa);
+        return (
+          <>
+            <span className="block font-bold">{cantidad(aPantalla(ins?.sp, i.unidad))}</span>
+            {ins?.codigo_mp && <span className="codigo block text-[14px] text-gray-600 dark:text-slate-300">{ins.codigo_mp}</span>}
+          </>
+        );
+      },
+      clase: 'tabular-nums',
+    })),
+    {
+      id: 'asignadas',
+      titulo: 'Tolvas asignadas',
+      valor: (o) => tolvasDe(o.numero).map((t) => t.codigo).join(', '),
+      celda: (o) => (
+        <span className="flex flex-wrap items-center gap-1.5">
+          {tolvasDe(o.numero).map((t) => (
+            <Chip key={t.codigo} tipo="curso">
+              <span className="codigo">{t.codigo}</span>
+            </Chip>
+          ))}
+          {puedeOperar && (
+            <button
+              type="button"
+              className={`${BOTON.secundario} !min-h-9 !px-3 text-sm`}
+              onClick={() => asignar(o)}
+              disabled={!receta[codigoDe(o)]}
+            >
+              <FontAwesomeIcon icon={faPlus} aria-hidden="true" />
+              Tolva
+            </button>
+          )}
+        </span>
+      ),
+    },
+  ];
+
   return (
     <div className="flex flex-col gap-6">
       <Encabezado
@@ -161,43 +313,14 @@ export default function OrdenesElaborar() {
           <CardTitulo icono={faBroom} extra={`${sucias.length} tolvas`}>
             Tolvas vacías (aviso de Línea)
           </CardTitulo>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[720px]">
-              <caption className="sr-only">Tolvas vacías y regla de lavado</caption>
-              <thead>
-                <tr>
-                  <th scope="col" className={`${TH} text-left`}>Tolva</th>
-                  <th scope="col" className={`${TH} text-left`}>Línea</th>
-                  <th scope="col" className={`${TH} text-left`}>Esencia que tenía</th>
-                  <th scope="col" className={`${TH} text-left`}>Siguiente orden de la línea</th>
-                  <th scope="col" className={`${TH} text-left`}>Lavado</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sucias.map((t) => {
-                  const sig = siguienteDe(t.linea);
-                  const regla = sig ? textoLavado(t, receta[codigoDe(sig)]) : null;
-                  return (
-                    <tr key={t.codigo} className="border-t border-gray-200 dark:border-slate-800">
-                      <td className={`${TD} font-bold tabular-nums`}>{t.codigo}</td>
-                      <td className={`${TD} tabular-nums`}>{t.linea || '—'}</td>
-                      <td className={TD}>{t.esencia || '—'}</td>
-                      <td className={TD}>{sig ? `${sig.numero} · ${sig.producto || ''}` : '—'}</td>
-                      <td className={`${TD} whitespace-nowrap`}>
-                        {regla ? (
-                          <Chip tipo={regla.r === 'no_lavar' ? 'ok' : 'inc'} icono={faBroom}>
-                            {regla.texto}
-                          </Chip>
-                        ) : (
-                          <Chip tipo="neutro">Sin orden siguiente con receta</Chip>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <DataTable
+            titulo="Tolvas vacías y regla de lavado"
+            columnas={columnasSucias}
+            filas={sucias}
+            clave={(t) => t.codigo}
+            minWidth={720}
+            compacta
+          />
         </Card>
       )}
 
@@ -231,107 +354,16 @@ export default function OrdenesElaborar() {
           <EstadoConsulta vacio={!g.aprobadas.length} textoVacio="No hay órdenes aprobadas para elaborar en esta línea." />
 
           {g.aprobadas.length > 0 && (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[1240px]">
-                <caption className="sr-only">Órdenes a elaborar de la línea {g.linea}</caption>
-                <thead>
-                  <tr>
-                    <th scope="col" className={`${TH} text-left`}>#</th>
-                    <th scope="col" className={`${TH} text-left`}>N° producción</th>
-                    <th scope="col" className={`${TH} text-left`}>Producto</th>
-                    <th scope="col" className={`${TH} text-right`}>Cantidad</th>
-                    <th scope="col" className={`${TH} text-left`}>Tolva</th>
-                    {INSUMOS.map((i) => (
-                      <th key={i.etapa} scope="col" className={`${TH} text-right`}>
-                        {i.nombre} <span className="normal-case">({i.unidad})</span>
-                      </th>
-                    ))}
-                    <th scope="col" className={`${TH} text-left`}>Tolvas asignadas</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {g.aprobadas.map((o, idx) => {
-                    const r = receta[codigoDe(o)];
-                    const insumos = r && o.tolva_kg ? escalar(r, o.tolva_kg) : null;
-                    const siguiente = idx === 0;
-                    const asignadas = tolvasDe(o.numero);
-                    return (
-                      <tr
-                        key={o.numero}
-                        className={`border-t border-gray-200 dark:border-slate-800 ${
-                          siguiente ? 'bg-teal-500/10 dark:bg-teal-400/10' : ''
-                        }`}
-                      >
-                        <td className={`${TD} text-[18px] font-extrabold tabular-nums text-teal-600 dark:text-teal-400`}>
-                          {idx + 1}
-                        </td>
-                        <td className={`${TD} whitespace-nowrap font-bold tabular-nums`}>
-                          {o.numero}
-                          {siguiente && (
-                            <span className="ml-2">
-                              <Chip tipo="curso" icono={faPlay} mayus>
-                                Siguiente
-                              </Chip>
-                            </span>
-                          )}
-                        </td>
-                        <td className={TD}>
-                          <span className="block">{o.producto || '—'}</span>
-                          <span className="block whitespace-nowrap text-[13px] text-gray-500 dark:text-slate-400">
-                            <FontAwesomeIcon icon={faBarcode} className="mr-1.5" aria-hidden="true" />
-                            {o.codigo_barras || '—'}
-                            {o.lote ? ` · Lote ${o.lote}` : ''}
-                          </span>
-                        </td>
-                        <td className={`${TD} text-right font-bold tabular-nums`}>{cantidad(o.cantidad)}</td>
-                        <td className={`${TD} whitespace-nowrap tabular-nums`}>
-                          {o.tolva_kg ? `${o.tolva_kg} kg` : <Chip tipo="inc">Sin definir</Chip>}
-                        </td>
-                        {insumos ? (
-                          INSUMOS.map((i) => {
-                            const ins = insumos.find((x) => x.etapa === i.etapa);
-                            return (
-                              <td key={i.etapa} className={`${TD} text-right tabular-nums`}>
-                                <span className="block font-bold">{cantidad(aPantalla(ins?.sp, i.unidad))}</span>
-                                {ins?.codigo_mp && (
-                                  <span className="block text-[13px] text-gray-500 dark:text-slate-400">{ins.codigo_mp}</span>
-                                )}
-                              </td>
-                            );
-                          })
-                        ) : (
-                          <td colSpan={INSUMOS.length} className={`${TD} text-right`}>
-                            <Chip tipo="neutro" icono={faFlask}>
-                              {!r ? 'Sin receta en el maestro' : 'Falta definir el tamaño de tolva en Programación'}
-                            </Chip>
-                          </td>
-                        )}
-                        <td className={TD}>
-                          <span className="flex flex-wrap items-center gap-1.5">
-                            {asignadas.map((t) => (
-                              <Chip key={t.codigo} tipo="curso">
-                                {t.codigo}
-                              </Chip>
-                            ))}
-                            {puedeOperar && (
-                              <button
-                                type="button"
-                                className={`${BOTON.secundario} !min-h-9 !px-3 text-sm`}
-                                onClick={() => asignar(o)}
-                                disabled={!r}
-                              >
-                                <FontAwesomeIcon icon={faPlus} aria-hidden="true" />
-                                Tolva
-                              </button>
-                            )}
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+            <DataTable
+              titulo={`Órdenes a elaborar de la línea ${g.linea}`}
+              columnas={columnasCola(g)}
+              filas={g.aprobadas}
+              clave={(o) => o.numero}
+              minWidth={1240}
+              porPagina={25}
+              claseFila={(o) => (g.aprobadas[0] === o ? 'bg-teal-500/10 dark:bg-teal-400/10' : '')}
+              exportar={`elaborar-linea-${g.linea}.csv`}
+            />
           )}
         </Card>
       ))}

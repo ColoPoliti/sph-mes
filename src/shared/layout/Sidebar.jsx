@@ -83,7 +83,7 @@ export default function Sidebar({ open, onClose, onToggle }) {
           }`}
       >
         {open && (
-          <span className="flex min-w-0 items-center gap-2 truncate text-[11px] font-extrabold uppercase tracking-[1.6px] text-gray-500 dark:text-slate-400">
+          <span className="flex min-w-0 items-center gap-2 truncate text-[12px] font-extrabold uppercase tracking-[1.6px] text-gray-600 dark:text-slate-300">
             <FontAwesomeIcon icon={modulo.icono} aria-hidden="true" />
             {modulo.label}
           </span>
@@ -94,7 +94,7 @@ export default function Sidebar({ open, onClose, onToggle }) {
           aria-expanded={open}
           aria-controls="menu-lateral"
           aria-label={open ? 'Contraer menú' : 'Expandir menú'}
-          className="hidden h-8 w-8 flex-none lg:flex cursor-pointer items-center justify-center rounded-md text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+          className="hidden h-8 w-8 flex-none lg:flex cursor-pointer items-center justify-center rounded-md text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
         >
           <svg
             className="h-5 w-5"
@@ -128,7 +128,7 @@ export default function Sidebar({ open, onClose, onToggle }) {
       >
         <img src={logoFoot} alt="industria 4" className="h-7 w-7 flex-shrink-0 object-contain" />
         {open && (
-          <span className="min-w-0 truncate font-montserrat text-sm font-bold tracking-tight text-gray-900 dark:text-white">
+          <span className="min-w-0 truncate text-sm font-bold tracking-tight text-gray-900 dark:text-white">
             industria 4
           </span>
         )}

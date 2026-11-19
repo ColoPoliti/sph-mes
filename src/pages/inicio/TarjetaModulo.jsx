@@ -10,7 +10,7 @@ import Grafico from './Graficos';
 function Dato({ etiqueta, valor, aviso }) {
   return (
     <div className="flex min-w-0 flex-col justify-between gap-0.5 text-center">
-      <dt className="text-xs font-medium leading-tight text-gray-500 [overflow-wrap:anywhere] dark:text-slate-400">{etiqueta}</dt>
+      <dt className="text-[13px] font-medium leading-tight text-gray-600 [overflow-wrap:anywhere] dark:text-slate-300">{etiqueta}</dt>
       <dd className="m-0 flex items-center justify-center gap-1.5 text-[15px] font-extrabold leading-tight tabular-nums text-gray-900 dark:text-white">
         {aviso && <span className={`h-2 w-2 flex-none rounded-full ${colorEstado(aviso)}`} aria-hidden="true" />}
         <span className="truncate">{valor}</span>
@@ -29,7 +29,7 @@ function Indicadores({ resumen }) {
           <span className="text-5xl font-extrabold leading-none text-gray-900 dark:text-white">
             <AnimatedCounter value={resumen.valor} decimals={0} />
           </span>
-          <span className="max-w-full rounded-md bg-slate-600 px-2 py-0.5 text-[11px] font-normal uppercase leading-tight text-white dark:bg-slate-800">
+          <span className="max-w-full rounded-md bg-slate-600 px-2 py-0.5 text-[12px] font-normal uppercase leading-tight text-white dark:bg-slate-800">
             {resumen.unidad}
           </span>
         </p>
@@ -66,7 +66,7 @@ export default function TarjetaModulo({ modulo, resumen, cargando, bloqueado, co
     cuerpo = (
       <div className="flex flex-col items-center gap-3 text-center">
         <p className={`m-0 ${subClass}`}>{modulo.descripcion}</p>
-        <p className="m-0 text-[13px] font-medium text-gray-500 dark:text-slate-400">
+        <p className="m-0 text-[14px] font-medium text-gray-600 dark:text-slate-300">
           <FontAwesomeIcon icon={faLock} className="mr-2" aria-hidden="true" />
           {conSesion ? 'Tu perfil no tiene acceso a este módulo.' : 'Iniciá sesión para ver sus indicadores.'}
         </p>
@@ -78,7 +78,7 @@ export default function TarjetaModulo({ modulo, resumen, cargando, bloqueado, co
     cuerpo = <Cargando />;
   } else {
     cuerpo = (
-      <p className="m-0 flex flex-1 flex-col items-center justify-center gap-2 text-center text-[13px] font-medium text-gray-500 dark:text-slate-400">
+      <p className="m-0 flex flex-1 flex-col items-center justify-center gap-2 text-center text-[14px] font-medium text-gray-600 dark:text-slate-300">
         <FontAwesomeIcon icon={faTriangleExclamation} className="text-xl text-amber-600 dark:text-amber-400" aria-hidden="true" />
         No se pudieron consultar los indicadores.
       </p>

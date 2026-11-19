@@ -38,11 +38,11 @@ export default function TopBar({ menuOpen, onToggleMenu }) {
       {/* Título de la vista dentro de un badge (oculto en mobile para dejar el logo centrado) */}
       <div className="flex min-w-0 flex-1 items-center gap-2.5">
         <span className="hidden min-w-0 items-center rounded-lg sm:inline-flex border border-gray-300 bg-white text-gray-900 shadow-md dark:border-white dark:shadow-none px-3 py-1.5 sm:px-4">
-          <span className="truncate text-[13px] font-extrabold leading-tight sm:text-[15px]">
+          <span className="truncate text-[14px] font-extrabold leading-tight sm:text-[15px]">
             {titulo}
           </span>
         </span>
-        <span className="hidden truncate text-[12px] font-medium text-gray-500 dark:text-slate-400 2xl:inline">
+        <span className="hidden truncate text-[13px] font-medium text-gray-600 dark:text-slate-300 2xl:inline">
           {sub}
         </span>
       </div>

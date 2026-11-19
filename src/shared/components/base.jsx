@@ -61,7 +61,7 @@ const TONOS_KPI = {
   cielo: 'text-sky-600 dark:text-sky-400',
   verde: 'text-emerald-600 dark:text-emerald-400',
   naranja: 'text-orange-600 dark:text-orange-400',
-  gris: 'text-gray-500 dark:text-slate-400',
+  gris: 'text-gray-600 dark:text-slate-300',
 };
 
 /**
@@ -96,13 +96,13 @@ export function Kpi({ titulo, valor, decimales = 0, sufijo, detalle, icono, tono
           {typeof valor === 'number' ? <AnimatedCounter value={valor} decimals={decimales} /> : valor}
         </span>
         {sufijo && (
-          <span className={`${compacto ? 'text-[13px]' : 'text-[15px]'} font-bold text-gray-500 dark:text-slate-400`}>
+          <span className={`${compacto ? 'text-[14px]' : 'text-[15px]'} font-bold text-gray-600 dark:text-slate-300`}>
             {sufijo}
           </span>
         )}
       </span>
       {detalle && !compacto && (
-        <span className="text-[13px] font-medium text-gray-500 dark:text-slate-400">{detalle}</span>
+        <span className="text-[14px] font-medium text-gray-600 dark:text-slate-300">{detalle}</span>
       )}
     </>
   );
@@ -140,7 +140,7 @@ export function EstadoConsulta({ cargando, error, vacio, textoVacio = 'No hay da
   if (cargando) return <p className={`m-0 ${subClass}`}>Cargando…</p>;
   if (vacio) {
     return (
-      <p className="m-0 flex items-center gap-2 py-4 text-[15px] font-medium text-gray-500 dark:text-slate-400">
+      <p className="m-0 flex items-center gap-2 py-4 text-[15px] font-medium text-gray-600 dark:text-slate-300">
         <FontAwesomeIcon icon={faInbox} aria-hidden="true" />
         {textoVacio}
       </p>
@@ -152,7 +152,7 @@ export function EstadoConsulta({ cargando, error, vacio, textoVacio = 'No hay da
 /** Nota informativa (mismo estilo que las notas del historial / etiqueta digital) */
 export function Nota({ children }) {
   return (
-    <p className="m-0 flex items-start gap-2 text-[15px] font-light text-gray-500 dark:text-slate-400">
+    <p className="m-0 flex items-start gap-2 text-[15px] font-normal text-gray-600 dark:text-slate-300">
       <FontAwesomeIcon icon={faCircleInfo} className="mt-[3px] flex-none text-violet-600 dark:text-violet-400" aria-hidden="true" />
       <span>{children}</span>
     </p>

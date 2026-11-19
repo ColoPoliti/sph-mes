@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClockRotateLeft, faFileCsv } from '@fortawesome/free-solid-svg-icons';
 import { Campo, Card, Encabezado, EstadoConsulta } from '@/shared/components/base';
-import { BOTON, INPUT, TD, TH } from '@/shared/components/clases';
+import DataTable from '@/shared/components/DataTable';
+import { BOTON, INPUT } from '@/shared/components/clases';
 import { ChipEstado } from '@/shared/components/ui';
 import { descargarCSV } from '@/shared/lib/csv';
 import { fechaCorta } from '@/shared/lib/format';
@@ -39,6 +40,47 @@ export default function Decisiones() {
       { titulo: 'Comentario', valor: (l) => l.calidad?.comentario },
     ]);
 
+  const columnas = [
+    {
+      id: 'lote',
+      titulo: 'Lote',
+      valor: (l) => l.id,
+      celda: (l) => <Link to={`/calidad/lotes/${l.id}`} className="font-bold text-teal-600 underline dark:text-teal-400">#{l.id}</Link>,
+    },
+    { id: 'producto', titulo: 'Producto', valor: (l) => l.nombre_producto },
+    { id: 'sector', titulo: 'Sector / PLC', valor: (l) => `${areaDe(l.area)?.label || l.area} ${l.sala}` },
+    {
+      id: 'elaborado',
+      titulo: 'Elaborado',
+      valor: (l) => l.inicio,
+      texto: (l) => fechaCorta(l.inicio),
+      celda: (l) => fechaCorta(l.inicio),
+      clase: 'whitespace-nowrap tabular-nums',
+    },
+    {
+      id: 'reviso',
+      titulo: 'Revisó',
+      valor: (l) => l.calidad?.usuario,
+      texto: (l) => fechaHora(l.calidad?.fecha),
+      celda: (l) => (
+        <>
+          {l.calidad?.usuario || '—'}
+          <br />
+          <span className="text-[14px] tabular-nums text-gray-600 dark:text-slate-300">{fechaHora(l.calidad?.fecha)}</span>
+        </>
+      ),
+    },
+    { id: 'comentario', titulo: 'Comentario', valor: (l) => l.calidad?.comentario, clase: 'max-w-[280px] text-[14px]' },
+    {
+      id: 'decision',
+      titulo: 'Decisión',
+      alinear: 'right',
+      valor: (l) => l.estado,
+      celda: (l) => <ChipEstado estado={l.estado} />,
+      clase: 'whitespace-nowrap',
+    },
+  ];
+
   return (
     <div className="flex flex-col gap-6">
       <Encabezado
@@ -66,41 +108,7 @@ export default function Decisiones() {
       <Card className="flex flex-col gap-2.5">
         <EstadoConsulta cargando={cargando && !filas.length} error={error} vacio={!cargando && !revisados.length} textoVacio="No hay decisiones en el período." />
         {revisados.length > 0 && (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px]">
-              <caption className="sr-only">Decisiones de calidad</caption>
-              <thead>
-                <tr>
-                  <th scope="col" className={`${TH} text-left`}>Lote</th>
-                  <th scope="col" className={`${TH} text-left`}>Producto</th>
-                  <th scope="col" className={`${TH} text-left`}>Sector / PLC</th>
-                  <th scope="col" className={`${TH} text-left`}>Elaborado</th>
-                  <th scope="col" className={`${TH} text-left`}>Revisó</th>
-                  <th scope="col" className={`${TH} text-left`}>Comentario</th>
-                  <th scope="col" className={`${TH} text-right`}>Decisión</th>
-                </tr>
-              </thead>
-              <tbody>
-                {revisados.map((l) => (
-                  <tr key={l.id} className="border-t border-gray-200 dark:border-slate-800">
-                    <td className={TD}>
-                      <Link to={`/calidad/lotes/${l.id}`} className="font-bold text-teal-600 underline dark:text-teal-400">#{l.id}</Link>
-                    </td>
-                    <td className={TD}>{l.nombre_producto}</td>
-                    <td className={TD}>{areaDe(l.area)?.label || l.area} {l.sala}</td>
-                    <td className={`${TD} whitespace-nowrap tabular-nums`}>{fechaCorta(l.inicio)}</td>
-                    <td className={TD}>
-                      {l.calidad?.usuario || '—'}
-                      <br />
-                      <span className="text-[13px] tabular-nums text-gray-500 dark:text-slate-400">{fechaHora(l.calidad?.fecha)}</span>
-                    </td>
-                    <td className={`${TD} max-w-[280px] text-[14px]`}>{l.calidad?.comentario || '—'}</td>
-                    <td className={`${TD} whitespace-nowrap text-right`}><ChipEstado estado={l.estado} /></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable titulo="Decisiones de calidad" columnas={columnas} filas={revisados} clave={(l) => l.id} minWidth={900} />
         )}
       </Card>
     </div>

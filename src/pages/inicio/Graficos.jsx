@@ -2,13 +2,13 @@
 // en la leyenda, en los rótulos o en la lista para lectores de pantalla.
 import { colorEstado, trazoEstado } from './colores';
 
-const TEXTO_VACIO = 'm-0 text-center text-[13px] font-medium text-gray-500 dark:text-slate-400';
+const TEXTO_VACIO = 'm-0 text-center text-[14px] font-medium text-gray-600 dark:text-slate-300';
 
 /** Globo que aparece al pasar el mouse por una marca (el contenedor lleva `group/marca relative`). */
 function Globo({ children }) {
   return (
     <span
-      className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-1.5 hidden -translate-x-1/2 whitespace-nowrap bg-slate-950 px-2 py-1 text-xs font-semibold text-white shadow-md group-hover/marca:block dark:bg-slate-700"
+      className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-1.5 hidden -translate-x-1/2 whitespace-nowrap bg-slate-950 px-2 py-1 text-[13px] font-semibold text-white shadow-md group-hover/marca:block dark:bg-slate-700"
       aria-hidden="true"
     >
       {children}
@@ -37,7 +37,7 @@ function Segmentos({ segmentos, vacio }) {
       </div>
       <ul className="m-0 flex list-none flex-wrap gap-x-3 gap-y-1 p-0">
         {segmentos.map((s) => (
-          <li key={s.clave} className="flex items-center gap-1.5 text-[13px] font-medium text-gray-600 dark:text-slate-300">
+          <li key={s.clave} className="flex items-center gap-1.5 text-[14px] font-medium text-gray-600 dark:text-slate-300">
             <span className={`h-2 w-2 flex-none rounded-full ${colorEstado(s.color)}`} aria-hidden="true" />
             {s.etiqueta}
             <span className="font-bold tabular-nums text-gray-900 dark:text-white">{s.valor}</span>
@@ -124,7 +124,7 @@ function Dona({ segmentos, centro, vacio }) {
       <ul className="m-0 flex w-full list-none justify-between gap-2 border-t border-gray-200 p-0 pt-3 dark:border-white/[.12]">
         {segmentos.map((s, i) => (
           <li key={s.clave} className="flex min-w-0 flex-col items-center gap-0.5 text-center" title={`${s.etiqueta}: ${s.valor}`}>
-            <span className="whitespace-nowrap text-xs font-medium leading-tight text-gray-500 dark:text-slate-400">{s.etiqueta}</span>
+            <span className="whitespace-nowrap text-[13px] font-medium leading-tight text-gray-600 dark:text-slate-300">{s.etiqueta}</span>
             <span className="flex items-center gap-1.5 text-[15px] font-extrabold leading-tight tabular-nums text-gray-900 dark:text-white">
               <span className={`h-2 w-2 flex-none rounded-full ${colorEstado(s.color)}`} aria-hidden="true" />
               {pcts[i]}%
@@ -163,7 +163,7 @@ function Columnas({ columnas, rotulos, color = 'teal', vacio }) {
           const tono = TONOS_COLUMNA[color][rotulos === 'ultimo' && !ultimo ? 'suave' : 'fuerte'];
           return (
             <div key={c.clave} className="group/marca relative flex min-w-0 flex-1 flex-col items-center justify-end" style={{ height: ALTO_COLUMNAS + 18 }}>
-              {conRotulo && <span className="mb-0.5 text-xs font-bold tabular-nums text-gray-900 dark:text-white">{c.valor}</span>}
+              {conRotulo && <span className="mb-0.5 text-[13px] font-bold tabular-nums text-gray-900 dark:text-white">{c.valor}</span>}
               <span
                 className={`block w-full max-w-6 rounded-t ${c.valor > 0 ? tono : 'bg-gray-300 dark:bg-slate-600'}`}
                 style={{ height: c.valor > 0 ? Math.max(4, (c.valor / maximo) * ALTO_COLUMNAS) : 2 }}
@@ -175,7 +175,7 @@ function Columnas({ columnas, rotulos, color = 'teal', vacio }) {
       </div>
       <div className="flex gap-1" aria-hidden="true">
         {columnas.map((c) => (
-          <span key={c.clave} className="min-w-0 flex-1 truncate text-center text-xs font-medium text-gray-500 dark:text-slate-400">
+          <span key={c.clave} className="min-w-0 flex-1 truncate text-center text-[13px] font-medium text-gray-600 dark:text-slate-300">
             {c.etiqueta}
           </span>
         ))}
@@ -192,7 +192,7 @@ function Medidor({ titulo, valor, total, vacio }) {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-baseline justify-between gap-3">
-        <span className="text-[13px] font-medium tabular-nums text-gray-500 dark:text-slate-400">
+        <span className="text-[14px] font-medium tabular-nums text-gray-600 dark:text-slate-300">
           {valor} de {total}
         </span>
         <span className="text-[15px] font-extrabold tabular-nums text-gray-900 dark:text-white">{pct}%</span>
@@ -219,10 +219,10 @@ function ListaPlc({ plcs }) {
     <ul className="m-0 flex list-none flex-col gap-2 p-0">
       {plcs.map((p) => (
         <li key={p.clave} className="flex flex-col gap-2">
-          <span className="flex items-center gap-2 text-[13px]">
+          <span className="flex items-center gap-2 text-[14px]">
             <span className={`h-2 w-2 flex-none rounded-full ${colorEstado(p.estado)}`} aria-hidden="true" />
             <span className="flex-none font-bold text-gray-900 dark:text-white">{p.nombre}</span>
-            <span className="ml-auto min-w-0 truncate font-medium text-gray-500 dark:text-slate-400" title={p.detalle}>
+            <span className="ml-auto min-w-0 truncate font-medium text-gray-600 dark:text-slate-300" title={p.detalle}>
               {p.texto}
             </span>
           </span>

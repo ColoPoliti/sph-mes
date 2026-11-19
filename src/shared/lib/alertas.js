@@ -9,7 +9,7 @@ export const CLASES = {
   popup: '!rounded-[14px] !bg-white !text-gray-900 dark:!bg-slate-900 dark:!text-white',
   title: '!text-xl !font-extrabold !text-gray-900 dark:!text-white',
   htmlContainer: '!text-[15px] !text-gray-600 dark:!text-slate-300',
-  inputLabel: '!text-[13px] !font-bold !text-gray-600 dark:!text-slate-300',
+  inputLabel: '!text-[14px] !font-bold !text-gray-600 dark:!text-slate-300',
   input:
     '!rounded-lg !border !border-gray-300 !bg-white !text-[15px] !text-gray-900 dark:!border-slate-700 dark:!bg-slate-950 dark:!text-white',
   actions: '!gap-y-2',

@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFlask, faMagnifyingGlass, faPen, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Card, CardTitulo, Encabezado, EstadoConsulta, Nota } from '@/shared/components/base';
-import { BOTON, INPUT, TD, TH } from '@/shared/components/clases';
+import DataTable from '@/shared/components/DataTable';
+import { BOTON, INPUT } from '@/shared/components/clases';
 import { useConsulta } from '@/shared/hooks/useConsulta';
 import { confirmar, toast } from '@/shared/lib/alertas';
 import { useSesion } from '@/shared/lib/auth';
+import { num } from '@/shared/lib/format';
 import { BASE_KG, INSUMOS, TAMANOS_TOLVA, aPantalla, eliminarReceta, escalar, getRecetas, totalKg } from '../lib/api';
 
 const cant = (v) =>
@@ -50,6 +52,81 @@ export default function Recetas() {
   };
 
   const insumo = (r, etapa) => escalar(r, kg).find((i) => i.etapa === etapa);
+
+  const columnas = [
+    { id: 'codigo', titulo: 'Código', valor: (r) => r.codigo_barra, clase: 'codigo font-bold tabular-nums' },
+    {
+      id: 'producto',
+      titulo: 'Producto',
+      valor: (r) => r.producto?.nombre,
+      celda: (r) => (
+        <>
+          <span className="block">{r.producto?.nombre}</span>
+          {r.producto?.sku && <span className="block text-[14px] text-gray-600 dark:text-slate-300">SKU {r.producto.sku}</span>}
+        </>
+      ),
+    },
+    ...INSUMOS.map((i) => ({
+      id: `insumo-${i.etapa}`,
+      titulo: `${i.nombre} (${i.unidad})`,
+      encabezado: (
+        <>
+          {i.nombre} <span className="normal-case">({i.unidad})</span>
+        </>
+      ),
+      alinear: 'right',
+      valor: (r) => num(aPantalla(insumo(r, i.etapa)?.sp, i.unidad)),
+      celda: (r) => {
+        const ins = insumo(r, i.etapa);
+        return (
+          <>
+            <span className="block font-bold">{cant(aPantalla(ins?.sp, i.unidad))}</span>
+            {ins?.codigo_mp && <span className="codigo block text-[14px] text-gray-600 dark:text-slate-300">{ins.codigo_mp}</span>}
+          </>
+        );
+      },
+      clase: 'tabular-nums',
+    })),
+    {
+      id: 'total',
+      titulo: 'Total (kg)',
+      encabezado: (
+        <>
+          Total <span className="normal-case">(kg)</span>
+        </>
+      ),
+      alinear: 'right',
+      valor: (r) => num(totalKg(escalar(r, kg))),
+      celda: (r) => cant(totalKg(escalar(r, kg))),
+      clase: 'font-bold tabular-nums',
+    },
+    ...(puedeEditar
+      ? [
+          {
+            id: 'acciones',
+            titulo: 'Acciones',
+            oculto: true,
+            alinear: 'right',
+            celda: (r) => (
+              <span className="inline-flex gap-1.5">
+                <Link to={`/administracion/tolvas/${r.id}/editar`} className={BOTON_ICONO} aria-label={`Editar la receta ${r.codigo_barra}`}>
+                  <FontAwesomeIcon icon={faPen} aria-hidden="true" />
+                </Link>
+                <button
+                  type="button"
+                  className={`${BOTON_ICONO} hover:!text-red-600 dark:hover:!text-red-400`}
+                  onClick={() => eliminar(r)}
+                  aria-label={`Eliminar la receta ${r.codigo_barra}`}
+                >
+                  <FontAwesomeIcon icon={faTrash} aria-hidden="true" />
+                </button>
+              </span>
+            ),
+            clase: 'whitespace-nowrap',
+          },
+        ]
+      : []),
+  ];
 
   return (
     <div className="flex flex-col gap-6">
@@ -117,70 +194,15 @@ export default function Recetas() {
         />
 
         {filas.length > 0 && (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[1060px]">
-              <caption className="sr-only">Maestro de tolvas</caption>
-              <thead>
-                <tr>
-                  <th scope="col" className={`${TH} text-left`}>Código</th>
-                  <th scope="col" className={`${TH} text-left`}>Producto</th>
-                  {INSUMOS.map((i) => (
-                    <th key={i.etapa} scope="col" className={`${TH} text-right`}>
-                      {i.nombre} <span className="normal-case">({i.unidad})</span>
-                    </th>
-                  ))}
-                  <th scope="col" className={`${TH} text-right`}>Total (kg)</th>
-                  {puedeEditar && <th scope="col" className={`${TH} text-right`}><span className="sr-only">Acciones</span></th>}
-                </tr>
-              </thead>
-              <tbody>
-                {filas.map((r) => (
-                  <tr key={r.id} className="border-t border-gray-200 dark:border-slate-800">
-                    <td className={`${TD} font-bold tabular-nums`}>{r.codigo_barra}</td>
-                    <td className={TD}>
-                      <span className="block">{r.producto?.nombre}</span>
-                      {r.producto?.sku && (
-                        <span className="block text-[13px] text-gray-500 dark:text-slate-400">SKU {r.producto.sku}</span>
-                      )}
-                    </td>
-                    {INSUMOS.map((i) => {
-                      const ins = insumo(r, i.etapa);
-                      return (
-                        <td key={i.etapa} className={`${TD} text-right tabular-nums`}>
-                          <span className="block font-bold">{cant(aPantalla(ins?.sp, i.unidad))}</span>
-                          {ins?.codigo_mp && (
-                            <span className="block text-[13px] text-gray-500 dark:text-slate-400">{ins.codigo_mp}</span>
-                          )}
-                        </td>
-                      );
-                    })}
-                    <td className={`${TD} text-right font-bold tabular-nums`}>{cant(totalKg(escalar(r, kg)))}</td>
-                    {puedeEditar && (
-                      <td className={`${TD} whitespace-nowrap text-right`}>
-                        <span className="inline-flex gap-1.5">
-                          <Link
-                            to={`/administracion/tolvas/${r.id}/editar`}
-                            className={BOTON_ICONO}
-                            aria-label={`Editar la receta ${r.codigo_barra}`}
-                          >
-                            <FontAwesomeIcon icon={faPen} aria-hidden="true" />
-                          </Link>
-                          <button
-                            type="button"
-                            className={`${BOTON_ICONO} hover:!text-red-600 dark:hover:!text-red-400`}
-                            onClick={() => eliminar(r)}
-                            aria-label={`Eliminar la receta ${r.codigo_barra}`}
-                          >
-                            <FontAwesomeIcon icon={faTrash} aria-hidden="true" />
-                          </button>
-                        </span>
-                      </td>
-                    )}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable
+            titulo="Maestro de tolvas"
+            columnas={columnas}
+            filas={filas}
+            clave={(r) => r.id}
+            minWidth={1060}
+            buscador={false}
+            exportar={`maestro-de-tolvas-${kg}kg.csv`}
+          />
         )}
       </Card>
     </div>

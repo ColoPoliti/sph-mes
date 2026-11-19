@@ -13,7 +13,8 @@ import {
   faTruckRampBox,
 } from '@fortawesome/free-solid-svg-icons';
 import { Card, CardTitulo, EstadoConsulta } from '@/shared/components/base';
-import { BOTON, TD, TH } from '@/shared/components/clases';
+import DataTable from '@/shared/components/DataTable';
+import { BOTON } from '@/shared/components/clases';
 import { labelClass, subClass } from '@/shared/components/ui';
 import { useConsulta } from '@/shared/hooks/useConsulta';
 import { CLASES, INPUT_MODAL, alerta, confirmar, esc, toast } from '@/shared/lib/alertas';
@@ -36,7 +37,7 @@ async function pedirLotes(orden, mp) {
   const filas = orden.items
     .map(
       (it, i) => `<label class="mt-3 block text-left">
-        <span class="text-[13px] font-bold uppercase tracking-[0.6px] text-gray-500 dark:text-slate-400">
+        <span class="text-[14px] font-bold uppercase tracking-[0.6px] text-gray-600 dark:text-slate-300">
           ${esc(it.codigo)} · ${esc(mp[it.codigo]?.nombre || '')} (${esc(cantidad(it.cantidad, mp[it.codigo]?.unidad))})
         </span>
         <input id="lote-${i}" class="${INPUT_MODAL}" placeholder="Lote del proveedor" />
@@ -148,7 +149,7 @@ export default function OrdenDetalle() {
           <div key={k} className="flex flex-col gap-1">
             <span className={labelClass}>{k}</span>
             <span className="text-[20px] font-extrabold">{v}</span>
-            {s && <span className="text-[13px] text-gray-500 dark:text-slate-400">{s}</span>}
+            {s && <span className="text-[14px] text-gray-600 dark:text-slate-300">{s}</span>}
           </div>
         ))}
         {orden.observaciones && <p className={`m-0 sm:col-span-2 xl:col-span-4 ${subClass}`}>{orden.observaciones}</p>}
@@ -157,32 +158,44 @@ export default function OrdenDetalle() {
       <div className="grid grid-cols-1 gap-6 2xl:grid-cols-3">
         <Card className="flex flex-col gap-2.5 2xl:col-span-2">
           <CardTitulo icono={faListUl}>Ítems</CardTitulo>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[560px]">
-              <thead>
-                <tr>
-                  <th scope="col" className={`${TH} text-left`}>Materia prima</th>
-                  <th scope="col" className={`${TH} text-right`}>Cantidad</th>
-                  <th scope="col" className={`${TH} text-right`}>Precio unit.</th>
-                  <th scope="col" className={`${TH} text-right`}>Subtotal</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orden.items.map((it) => (
-                  <tr key={it.codigo} className="border-t border-gray-200 dark:border-slate-800">
-                    <td className={TD}>
-                      {mp[it.codigo]?.nombre || it.codigo}
-                      <br />
-                      <span className="text-[13px] text-gray-500 dark:text-slate-400">{it.codigo}</span>
-                    </td>
-                    <td className={`${TD} text-right tabular-nums`}>{cantidad(it.cantidad, mp[it.codigo]?.unidad)}</td>
-                    <td className={`${TD} text-right tabular-nums`}>{pesos(it.precio)}</td>
-                    <td className={`${TD} text-right font-bold tabular-nums`}>{pesos(it.cantidad * it.precio)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable
+            titulo="Ítems de la orden"
+            filas={orden.items}
+            clave={(it) => it.codigo}
+            minWidth={560}
+            compacta
+            columnas={[
+              {
+                id: 'mp',
+                titulo: 'Materia prima',
+                valor: (it) => mp[it.codigo]?.nombre || it.codigo,
+                celda: (it) => (
+                  <>
+                    {mp[it.codigo]?.nombre || it.codigo}
+                    <br />
+                    <span className="codigo text-[14px] text-gray-600 dark:text-slate-300">{it.codigo}</span>
+                  </>
+                ),
+              },
+              {
+                id: 'cantidad',
+                titulo: 'Cantidad',
+                alinear: 'right',
+                valor: (it) => Number(it.cantidad),
+                celda: (it) => cantidad(it.cantidad, mp[it.codigo]?.unidad),
+                clase: 'tabular-nums',
+              },
+              { id: 'precio', titulo: 'Precio unit.', alinear: 'right', valor: (it) => Number(it.precio), celda: (it) => pesos(it.precio), clase: 'tabular-nums' },
+              {
+                id: 'subtotal',
+                titulo: 'Subtotal',
+                alinear: 'right',
+                valor: (it) => it.cantidad * it.precio,
+                celda: (it) => pesos(it.cantidad * it.precio),
+                clase: 'font-bold tabular-nums',
+              },
+            ]}
+          />
 
           {recepciones.length > 0 && (
             <>
@@ -191,7 +204,7 @@ export default function OrdenDetalle() {
                 {recepciones.map((r) => (
                   <li key={r.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-gray-200 py-2 dark:border-slate-800">
                     <span className="font-bold">{r.numero}</span>
-                    <span className="flex-1 text-[15px]">
+                    <span className="codigo flex-1 text-[15px]">
                       {r.codigo} · lote {r.loteProveedor || 's/d'}
                     </span>
                     <ChipRecepcion estado={r.estado} />
@@ -208,7 +221,7 @@ export default function OrdenDetalle() {
             {[...(orden.historial || [])].reverse().map((h, i) => (
               <li key={i} className="flex flex-col">
                 <span className="text-[15px] font-bold">{h.accion}</span>
-                <span className="text-[13px] text-gray-500 dark:text-slate-400">
+                <span className="text-[14px] text-gray-600 dark:text-slate-300">
                   {new Date(h.fecha).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: h.fecha.length > 10 ? 'short' : undefined })} · {h.usuario}
                 </span>
               </li>

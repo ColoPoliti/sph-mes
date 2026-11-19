@@ -9,7 +9,8 @@ import {
   faTriangleExclamation,
 } from '@fortawesome/free-solid-svg-icons';
 import { Card, CardTitulo, Encabezado, EstadoConsulta, GrillaKpi, Kpi } from '@/shared/components/base';
-import { BOTON, TD, TH } from '@/shared/components/clases';
+import DataTable from '@/shared/components/DataTable';
+import { BOTON } from '@/shared/components/clases';
 import { useSesion } from '@/shared/lib/auth';
 import { bajoMinimo, totalOrden } from '../lib/api';
 import { cantidad, fechaAR, pesos } from '../lib/estados';
@@ -24,6 +25,50 @@ export default function PanelCompras() {
   const pendientes = ordenes.filter((o) => o.estado === 'pendiente');
   const comprometido = ordenes.filter((o) => o.estado === 'aprobada').reduce((t, o) => t + totalOrden(o), 0);
   const criticas = materias.filter(bajoMinimo);
+
+  const columnasCriticas = [
+    {
+      id: 'mp',
+      titulo: 'Materia prima',
+      valor: (m) => m.nombre,
+      celda: (m) => (
+        <>
+          {m.nombre}
+          <br />
+          <span className="codigo text-[14px] text-gray-600 dark:text-slate-300">{m.codigo}</span>
+        </>
+      ),
+    },
+    {
+      id: 'stock',
+      titulo: 'Stock',
+      alinear: 'right',
+      valor: (m) => Number(m.stock),
+      celda: (m) => cantidad(m.stock, m.unidad),
+      clase: 'font-bold tabular-nums text-red-600 dark:text-red-400',
+    },
+    {
+      id: 'minimo',
+      titulo: 'Mínimo',
+      alinear: 'right',
+      valor: (m) => Number(m.stockMinimo),
+      celda: (m) => cantidad(m.stockMinimo, m.unidad),
+      clase: 'tabular-nums',
+    },
+    { id: 'nivel', titulo: 'Nivel', oculto: true, celda: (m) => <BarraStock stock={m.stock} minimo={m.stockMinimo} /> },
+    {
+      id: 'accion',
+      titulo: 'Acción',
+      oculto: true,
+      alinear: 'right',
+      celda: (m) =>
+        puede('compras.editar') && (
+          <Link to={`/compras/ordenes/nueva?mp=${encodeURIComponent(m.codigo)}`} className="font-bold text-violet-700 underline dark:text-violet-300">
+            Pedir
+          </Link>
+        ),
+    },
+  ];
 
   return (
     <div className="flex flex-col gap-6">
@@ -60,40 +105,7 @@ export default function PanelCompras() {
           <CardTitulo icono={faBoxesStacked}>Bajo punto de pedido</CardTitulo>
           <EstadoConsulta cargando={cargando} error={error} vacio={!criticas.length} textoVacio="Todas las materias primas están sobre el mínimo." />
           {criticas.length > 0 && (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[560px]">
-                <thead>
-                  <tr>
-                    <th scope="col" className={`${TH} text-left`}>Materia prima</th>
-                    <th scope="col" className={`${TH} text-right`}>Stock</th>
-                    <th scope="col" className={`${TH} text-right`}>Mínimo</th>
-                    <th scope="col" className={TH}><span className="sr-only">Nivel</span></th>
-                    <th scope="col" className={TH}><span className="sr-only">Acción</span></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {criticas.map((m) => (
-                    <tr key={m.codigo} className="border-t border-gray-200 dark:border-slate-800">
-                      <td className={TD}>
-                        {m.nombre}
-                        <br />
-                        <span className="text-[13px] text-gray-500 dark:text-slate-400">{m.codigo}</span>
-                      </td>
-                      <td className={`${TD} text-right font-bold tabular-nums text-red-600 dark:text-red-400`}>{cantidad(m.stock, m.unidad)}</td>
-                      <td className={`${TD} text-right tabular-nums`}>{cantidad(m.stockMinimo, m.unidad)}</td>
-                      <td className={TD}><BarraStock stock={m.stock} minimo={m.stockMinimo} /></td>
-                      <td className={`${TD} text-right`}>
-                        {puede('compras.editar') && (
-                          <Link to={`/compras/ordenes/nueva?mp=${encodeURIComponent(m.codigo)}`} className="font-bold text-violet-700 underline dark:text-violet-300">
-                            Pedir
-                          </Link>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <DataTable titulo="Materias primas bajo punto de pedido" columnas={columnasCriticas} filas={criticas} clave={(m) => m.codigo} minWidth={560} compacta />
           )}
         </Card>
 
@@ -107,7 +119,7 @@ export default function PanelCompras() {
               <li key={o.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-gray-200 py-2.5 dark:border-slate-800">
                 <Link to={`/compras/ordenes/${o.id}`} className="font-bold text-teal-600 underline dark:text-teal-400">{o.numero}</Link>
                 <span className="min-w-0 flex-1 truncate text-[15px] font-medium">{proveedor[o.proveedorId]?.razonSocial || '—'}</span>
-                <span className="text-[13px] text-gray-500 dark:text-slate-400">Entrega {fechaAR(o.fechaEntrega)}</span>
+                <span className="text-[14px] text-gray-600 dark:text-slate-300">Entrega {fechaAR(o.fechaEntrega)}</span>
                 <span className="font-bold tabular-nums">{pesos(totalOrden(o))}</span>
                 <ChipOC estado={o.estado} />
               </li>

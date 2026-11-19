@@ -25,7 +25,7 @@ export default function RequierePermiso({ permiso, children }) {
   return (
     <div className="flex justify-center pt-10">
       <Card className="flex w-full max-w-md flex-col items-center gap-4 text-center">
-        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-500/10 text-2xl text-gray-500 dark:bg-slate-400/15 dark:text-slate-300">
+        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-500/10 text-2xl text-gray-600 dark:bg-slate-400/15 dark:text-slate-300">
           <FontAwesomeIcon icon={faLock} aria-hidden="true" />
         </span>
         <h1 className="m-0 text-xl font-extrabold">

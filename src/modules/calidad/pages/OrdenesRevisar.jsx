@@ -10,11 +10,13 @@ import {
   faStamp,
 } from '@fortawesome/free-solid-svg-icons';
 import { Card, CardTitulo, Encabezado, EstadoConsulta, Nota } from '@/shared/components/base';
-import { BOTON, INPUT, TD, TH } from '@/shared/components/clases';
+import DataTable from '@/shared/components/DataTable';
+import { BOTON, INPUT } from '@/shared/components/clases';
 import { Chip } from '@/shared/components/ui';
 import { useConsulta } from '@/shared/hooks/useConsulta';
 import { CLASES, alerta, esc } from '@/shared/lib/alertas';
 import { useSesion } from '@/shared/lib/auth';
+import { num } from '@/shared/lib/format';
 import { getOrdenesBejerman, porLinea } from '@/modules/programacion/lib/api';
 import { cantidad, fecha } from '@/modules/programacion/lib/formato';
 import { ESTADOS_REVISION, estadoRevision, quitarRevision, registrarRevision } from '@/modules/programacion/lib/revision';
@@ -37,8 +39,8 @@ function verReceta(orden, receta) {
     const ins = insumos.find((x) => x.etapa === i.etapa);
     const valor = aPantalla(ins?.sp, i.unidad);
     return `<tr class="border-t border-gray-200 dark:border-slate-800">
-      <th class="py-2 pr-3 text-left text-[13px] font-bold uppercase tracking-[0.6px] text-gray-500 dark:text-slate-400">${esc(i.nombre)}</th>
-      <td class="py-2 pr-3 text-left text-gray-500 dark:text-slate-400">${esc(ins?.codigo_mp || '')}</td>
+      <th class="py-2 pr-3 text-left text-[14px] font-bold uppercase tracking-[0.6px] text-gray-600 dark:text-slate-300">${esc(i.nombre)}</th>
+      <td class="codigo py-2 pr-3 text-left text-gray-600 dark:text-slate-300">${esc(ins?.codigo_mp || '')}</td>
       <td class="py-2 text-right font-bold tabular-nums text-gray-900 dark:text-white">${esc(cantidad(valor))} ${esc(i.unidad)}</td>
     </tr>`;
   }).join('');
@@ -152,6 +154,92 @@ export default function OrdenesRevisar() {
     </button>
   );
 
+  const recetaDe = (o) => receta[String(o.codigo_barras ?? '').trim()];
+
+  const columnas = [
+    { id: 'numero', titulo: 'N° producción', valor: (o) => o.numero, clase: 'codigo font-bold tabular-nums' },
+    { id: 'producto', titulo: 'Producto', valor: (o) => o.producto },
+    {
+      id: 'codigo',
+      titulo: 'Código de barras',
+      valor: (o) => o.codigo_barras,
+      celda: (o) => (
+        <>
+          <FontAwesomeIcon icon={faBarcode} className="mr-2 text-gray-400" aria-hidden="true" />
+          {o.codigo_barras || '—'}
+        </>
+      ),
+      clase: 'codigo whitespace-nowrap tabular-nums',
+    },
+    { id: 'cantidad', titulo: 'Cantidad', alinear: 'right', valor: (o) => num(o.cantidad), celda: (o) => cantidad(o.cantidad), clase: 'font-bold tabular-nums' },
+    {
+      id: 'tolva',
+      titulo: 'Tolva',
+      valor: (o) => o.tolva_kg,
+      celda: (o) => (o.tolva_kg ? `${o.tolva_kg} kg` : <Chip tipo="inc">Sin definir</Chip>),
+      clase: 'whitespace-nowrap tabular-nums',
+    },
+    { id: 'linea', titulo: 'Línea', valor: (o) => o.linea, clase: 'tabular-nums' },
+    { id: 'lote', titulo: 'Lote', valor: (o) => o.lote, clase: 'codigo tabular-nums' },
+    {
+      id: 'receta',
+      titulo: 'Receta',
+      valor: (o) => (recetaDe(o) ? 'Con receta' : 'Sin receta en el maestro'),
+      celda: (o) => {
+        const r = recetaDe(o);
+        return r ? (
+          <button
+            type="button"
+            className="inline-flex min-h-9 cursor-pointer items-center gap-1.5 font-bold text-teal-600 underline dark:text-teal-400"
+            onClick={() => verReceta(o, r)}
+          >
+            <FontAwesomeIcon icon={faFlask} aria-hidden="true" />
+            Ver receta
+          </button>
+        ) : (
+          <Chip tipo="neutro">Sin receta en el maestro</Chip>
+        );
+      },
+      clase: 'whitespace-nowrap',
+    },
+    {
+      id: 'estado',
+      titulo: 'Estado',
+      valor: (o) => ESTADOS_REVISION[estadoRevision(o)]?.texto,
+      celda: (o) => (
+        <>
+          <ChipRevision orden={o} />
+          {o.revision && (
+            <span className="mt-1 block text-[14px] text-gray-600 dark:text-slate-300">
+              {o.revision.usuario} · {fecha(o.revision.fecha)}
+            </span>
+          )}
+        </>
+      ),
+      clase: 'whitespace-nowrap',
+    },
+    ...(puedeAprobar
+      ? [
+          {
+            id: 'accion',
+            titulo: 'Acción',
+            oculto: true,
+            alinear: 'right',
+            celda: (o) => {
+              const aprobada = estadoRevision(o) === 'aprobado';
+              return (
+                <button type="button" className={aprobada ? BOTON.secundario : BOTON.exito} onClick={() => revisar(o)}>
+                  <FontAwesomeIcon icon={faStamp} aria-hidden="true" />
+                  {aprobada ? 'Quitar aprobación' : 'Revisar'}
+                </button>
+              );
+            },
+            clase: 'whitespace-nowrap',
+          },
+        ]
+      : []),
+  ];
+
   return (
     <div className="flex flex-col gap-6">
       <Encabezado
@@ -197,81 +285,15 @@ export default function OrdenesRevisar() {
         />
 
         {filas.length > 0 && (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[1100px]">
-              <caption className="sr-only">Órdenes de producción a revisar</caption>
-              <thead>
-                <tr>
-                  <th scope="col" className={`${TH} text-left`}>N° producción</th>
-                  <th scope="col" className={`${TH} text-left`}>Producto</th>
-                  <th scope="col" className={`${TH} text-left`}>Código de barras</th>
-                  <th scope="col" className={`${TH} text-right`}>Cantidad</th>
-                  <th scope="col" className={`${TH} text-left`}>Tolva</th>
-                  <th scope="col" className={`${TH} text-left`}>Línea</th>
-                  <th scope="col" className={`${TH} text-left`}>Lote</th>
-                  <th scope="col" className={`${TH} text-left`}>Receta</th>
-                  <th scope="col" className={`${TH} text-left`}>Estado</th>
-                  {puedeAprobar && <th scope="col" className={`${TH} text-right`}><span className="sr-only">Acción</span></th>}
-                </tr>
-              </thead>
-              <tbody>
-                {filas.map((o) => {
-                  const r = receta[String(o.codigo_barras ?? '').trim()];
-                  const st = estadoRevision(o);
-                  return (
-                    <tr key={o.numero} className="border-t border-gray-200 dark:border-slate-800">
-                      <td className={`${TD} font-bold tabular-nums`}>{o.numero}</td>
-                      <td className={TD}>{o.producto || '—'}</td>
-                      <td className={`${TD} whitespace-nowrap tabular-nums`}>
-                        <FontAwesomeIcon icon={faBarcode} className="mr-2 text-gray-400" aria-hidden="true" />
-                        {o.codigo_barras || '—'}
-                      </td>
-                      <td className={`${TD} text-right font-bold tabular-nums`}>{cantidad(o.cantidad)}</td>
-                      <td className={`${TD} whitespace-nowrap tabular-nums`}>
-                        {o.tolva_kg ? `${o.tolva_kg} kg` : <Chip tipo="inc">Sin definir</Chip>}
-                      </td>
-                      <td className={`${TD} tabular-nums`}>{o.linea || '—'}</td>
-                      <td className={`${TD} tabular-nums`}>{o.lote || '—'}</td>
-                      <td className={`${TD} whitespace-nowrap`}>
-                        {r ? (
-                          <button
-                            type="button"
-                            className="inline-flex min-h-9 cursor-pointer items-center gap-1.5 font-bold text-teal-600 underline dark:text-teal-400"
-                            onClick={() => verReceta(o, r)}
-                          >
-                            <FontAwesomeIcon icon={faFlask} aria-hidden="true" />
-                            Ver receta
-                          </button>
-                        ) : (
-                          <Chip tipo="neutro">Sin receta en el maestro</Chip>
-                        )}
-                      </td>
-                      <td className={`${TD} whitespace-nowrap`}>
-                        <ChipRevision orden={o} />
-                        {o.revision && (
-                          <span className="mt-1 block text-[13px] text-gray-500 dark:text-slate-400">
-                            {o.revision.usuario} · {fecha(o.revision.fecha)}
-                          </span>
-                        )}
-                      </td>
-                      {puedeAprobar && (
-                        <td className={`${TD} whitespace-nowrap text-right`}>
-                          <button
-                            type="button"
-                            className={st === 'aprobado' ? BOTON.secundario : BOTON.exito}
-                            onClick={() => revisar(o)}
-                          >
-                            <FontAwesomeIcon icon={faStamp} aria-hidden="true" />
-                            {st === 'aprobado' ? 'Quitar aprobación' : 'Revisar'}
-                          </button>
-                        </td>
-                      )}
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <DataTable
+            titulo="Órdenes de producción a revisar"
+            columnas={columnas}
+            filas={filas}
+            clave={(o) => o.numero}
+            minWidth={1100}
+            buscador={false}
+            exportar="ordenes-a-revisar.csv"
+          />
         )}
         {!puedeAprobar && <Nota>Tu perfil es de consulta: solo Calidad o el administrador pueden aprobar.</Nota>}
         <Nota>

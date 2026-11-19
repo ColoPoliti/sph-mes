@@ -3,7 +3,8 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCartPlus, faFileCsv, faFileInvoiceDollar, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { Card, CardTitulo, Encabezado, EstadoConsulta } from '@/shared/components/base';
-import { BOTON, INPUT, TD, TH } from '@/shared/components/clases';
+import DataTable from '@/shared/components/DataTable';
+import { BOTON, INPUT } from '@/shared/components/clases';
 import { useSesion } from '@/shared/lib/auth';
 import { descargarCSV } from '@/shared/lib/csv';
 import { totalOrden } from '../lib/api';
@@ -59,6 +60,32 @@ export default function Ordenes() {
     </button>
   );
 
+  const columnas = [
+    {
+      id: 'numero',
+      titulo: 'Número',
+      valor: (o) => o.numero,
+      celda: (o) => (
+        <Link to={`/compras/ordenes/${o.id}`} className="inline-flex min-h-9 items-center font-bold text-teal-600 underline dark:text-teal-400">
+          {o.numero}
+        </Link>
+      ),
+    },
+    { id: 'proveedor', titulo: 'Proveedor', valor: (o) => proveedor[o.proveedorId]?.razonSocial },
+    { id: 'fecha', titulo: 'Fecha', valor: (o) => o.fecha, celda: (o) => fechaAR(o.fecha), clase: 'tabular-nums' },
+    { id: 'entrega', titulo: 'Entrega', valor: (o) => o.fechaEntrega, celda: (o) => fechaAR(o.fechaEntrega), clase: 'tabular-nums' },
+    { id: 'items', titulo: 'Ítems', alinear: 'right', valor: (o) => o.items.length, clase: 'tabular-nums' },
+    { id: 'total', titulo: 'Total', alinear: 'right', valor: (o) => totalOrden(o), celda: (o) => pesos(totalOrden(o)), clase: 'font-bold tabular-nums' },
+    {
+      id: 'estado',
+      titulo: 'Estado',
+      alinear: 'right',
+      valor: (o) => ESTADOS_OC[o.estado]?.texto || o.estado,
+      celda: (o) => <ChipOC estado={o.estado} />,
+      clase: 'whitespace-nowrap',
+    },
+  ];
+
   return (
     <div className="flex flex-col gap-6">
       <Encabezado
@@ -101,39 +128,14 @@ export default function Ordenes() {
         <EstadoConsulta cargando={cargando} error={error} vacio={!filas.length} textoVacio="Ninguna orden cumple con el filtro." />
 
         {filas.length > 0 && (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[760px]">
-              <caption className="sr-only">Órdenes de compra</caption>
-              <thead>
-                <tr>
-                  <th scope="col" className={`${TH} text-left`}>Número</th>
-                  <th scope="col" className={`${TH} text-left`}>Proveedor</th>
-                  <th scope="col" className={`${TH} text-left`}>Fecha</th>
-                  <th scope="col" className={`${TH} text-left`}>Entrega</th>
-                  <th scope="col" className={`${TH} text-right`}>Ítems</th>
-                  <th scope="col" className={`${TH} text-right`}>Total</th>
-                  <th scope="col" className={`${TH} text-right`}>Estado</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filas.map((o) => (
-                  <tr key={o.id} className="border-t border-gray-200 dark:border-slate-800">
-                    <td className={TD}>
-                      <Link to={`/compras/ordenes/${o.id}`} className="inline-flex min-h-9 items-center font-bold text-teal-600 underline dark:text-teal-400">
-                        {o.numero}
-                      </Link>
-                    </td>
-                    <td className={TD}>{proveedor[o.proveedorId]?.razonSocial || '—'}</td>
-                    <td className={`${TD} tabular-nums`}>{fechaAR(o.fecha)}</td>
-                    <td className={`${TD} tabular-nums`}>{fechaAR(o.fechaEntrega)}</td>
-                    <td className={`${TD} text-right tabular-nums`}>{o.items.length}</td>
-                    <td className={`${TD} text-right font-bold tabular-nums`}>{pesos(totalOrden(o))}</td>
-                    <td className={`${TD} whitespace-nowrap text-right`}><ChipOC estado={o.estado} /></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable
+            titulo="Órdenes de compra"
+            columnas={columnas}
+            filas={filas}
+            clave={(o) => o.id}
+            minWidth={760}
+            buscador={false}
+          />
         )}
       </Card>
     </div>

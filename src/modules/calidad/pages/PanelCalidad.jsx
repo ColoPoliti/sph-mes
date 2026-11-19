@@ -74,6 +74,7 @@ export default function PanelCalidad() {
             onAprobar={puedeAprobar ? onAprobar : undefined}
             onInfo={mostrarInfoLote}
             rutaLote={(id) => `/calidad/lotes/${id}`}
+            compacta
           />
         )}
       </Card>

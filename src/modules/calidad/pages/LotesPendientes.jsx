@@ -23,7 +23,7 @@ function useAhora(ms = 1000) {
 // Temporizador con el color del semáforo
 function Temporizador({ seg }) {
   const n = nivel(seg);
-  if (!n) return <span className="text-gray-500 dark:text-slate-400">Sin terminar</span>;
+  if (!n) return <span className="text-gray-600 dark:text-slate-300">Sin terminar</span>;
   const { chip, punto, texto } = NIVELES[n];
   return (
     <span
@@ -81,9 +81,11 @@ export default function LotesPendientes() {
   );
 
   const columnaEspera = {
+    id: 'espera',
     titulo: 'En cuarentena',
-    className: 'text-left',
+    valor: (l) => l.espera_s,
     celda: (l) => <Temporizador seg={l.espera_s} />,
+    clase: 'whitespace-nowrap',
   };
 
   return (
@@ -127,6 +129,8 @@ export default function LotesPendientes() {
             onInfo={mostrarInfoLote}
             rutaLote={(id) => `/calidad/lotes/${id}`}
             columnasExtra={[columnaEspera]}
+            buscador={false}
+            exportar="lotes-a-liberar.csv"
           />
         )}
         <Nota>

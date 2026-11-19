@@ -11,7 +11,7 @@ export default function ChipRevision({ orden, conMotivo = true }) {
         {texto}
       </Chip>
       {conMotivo && motivo && (
-        <span className="max-w-[240px] whitespace-normal text-[13px] font-medium text-red-700 dark:text-red-300">
+        <span className="max-w-[240px] whitespace-normal text-[14px] font-medium text-red-700 dark:text-red-300">
           {motivo}
         </span>
       )}

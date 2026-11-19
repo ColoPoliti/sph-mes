@@ -10,7 +10,8 @@ import {
   faUserCheck,
 } from '@fortawesome/free-solid-svg-icons';
 import { Card, CardTitulo, Encabezado, EstadoConsulta, Nota } from '@/shared/components/base';
-import { BOTON, INPUT, TD, TH } from '@/shared/components/clases';
+import DataTable from '@/shared/components/DataTable';
+import { BOTON, INPUT } from '@/shared/components/clases';
 import { Chip } from '@/shared/components/ui';
 import { useConsulta } from '@/shared/hooks/useConsulta';
 import { alerta, confirmar, esc, toast } from '@/shared/lib/alertas';
@@ -88,7 +89,7 @@ export default function TolvasControlar() {
     ]
       .map(
         ([k, v]) => `<tr class="border-t border-gray-200 dark:border-slate-800">
-          <th class="py-1.5 pr-3 text-left text-[13px] font-bold uppercase tracking-[0.6px] text-gray-500 dark:text-slate-400">${esc(k)}</th>
+          <th class="py-1.5 pr-3 text-left text-[14px] font-bold uppercase tracking-[0.6px] text-gray-600 dark:text-slate-300">${esc(k)}</th>
           <td class="py-1.5 text-left font-semibold text-gray-900 dark:text-white">${esc(v)}</td>
         </tr>`,
       )
@@ -135,6 +136,105 @@ export default function TolvasControlar() {
     </button>
   );
 
+  const columnas = [
+    { id: 'tolva', titulo: 'Tolva', valor: (c) => c.codigo, clase: 'codigo font-bold tabular-nums' },
+    { id: 'orden', titulo: 'Orden', valor: (c) => c.orden, clase: 'codigo tabular-nums' },
+    {
+      id: 'producto',
+      titulo: 'Producto',
+      valor: (c) => c.producto,
+      celda: (c) => (
+        <>
+          <span className="block">{c.producto || '—'}</span>
+          {c.kg && <span className="block text-[14px] text-gray-600 dark:text-slate-300">{c.kg} kg</span>}
+        </>
+      ),
+    },
+    { id: 'linea', titulo: 'Línea', valor: (c) => c.linea, clase: 'tabular-nums' },
+    { id: 'lavada', titulo: 'Lavada', valor: (c) => (c.lavada ? 'Sí' : 'No') },
+    {
+      id: 'lote',
+      titulo: 'Lote PLC',
+      valor: (c) => c.lote.id,
+      celda: (c) => (
+        <Link
+          to={`/monitoreo/lotes/${c.lote.id}`}
+          className="inline-flex min-h-9 items-center font-bold text-teal-600 underline dark:text-teal-400"
+          aria-label={`Ver la etiqueta digital del lote ${c.lote.id}`}
+        >
+          #{c.lote.id}
+        </Link>
+      ),
+    },
+    {
+      id: 'calidad',
+      titulo: 'Aprobó Calidad',
+      valor: (c) => c.lote.calidad?.usuario,
+      celda: (c) => (
+        <>
+          <span className="block">{c.lote.calidad?.usuario || '—'}</span>
+          <span className="block text-[14px] text-gray-600 dark:text-slate-300">{fechaHora(c.lote.calidad?.fecha)}</span>
+        </>
+      ),
+      clase: 'text-[14px]',
+    },
+    {
+      id: 'estado',
+      titulo: 'Estado',
+      valor: (c) => ESTADOS_TOLVA[c.estado]?.texto,
+      celda: (c) => {
+        const est = ESTADOS_TOLVA[c.estado];
+        return est ? <Chip tipo={est.tipo}>{est.texto}</Chip> : '—';
+      },
+      clase: 'whitespace-nowrap',
+    },
+    {
+      id: 'auditoria',
+      titulo: 'Auditoría',
+      valor: (c) => (c.control ? 'Controlada' : 'Pendiente'),
+      celda: (c) =>
+        c.control ? (
+          <span className="flex flex-col items-start gap-1">
+            <Chip tipo="calidad" icono={faCircleCheck} mayus>
+              Controlada
+            </Chip>
+            <span className="text-[14px] text-gray-600 dark:text-slate-300">
+              {c.control.usuario} · {fechaHora(c.control.fecha)}
+            </span>
+            {c.control.observaciones && (
+              <span className="max-w-[260px] whitespace-pre-wrap text-[14px] font-medium">{c.control.observaciones}</span>
+            )}
+          </span>
+        ) : (
+          <Chip tipo="inc" icono={faHourglassHalf} mayus>
+            Pendiente
+          </Chip>
+        ),
+    },
+    ...(puedeRegistrar
+      ? [
+          {
+            id: 'accion',
+            titulo: 'Acción',
+            oculto: true,
+            alinear: 'right',
+            celda: (c) =>
+              c.control ? (
+                <button type="button" className={BOTON.secundario} onClick={() => quitar(c)}>
+                  Quitar control
+                </button>
+              ) : (
+                <button type="button" className={BOTON.exito} onClick={() => controlar(c)}>
+                  <FontAwesomeIcon icon={faUserCheck} aria-hidden="true" />
+                  Controlar
+                </button>
+              ),
+            clase: 'whitespace-nowrap',
+          },
+        ]
+      : []),
+  ];
+
   return (
     <div className="flex flex-col gap-6">
       <Encabezado
@@ -180,91 +280,15 @@ export default function TolvasControlar() {
         />
 
         {visibles.length > 0 && (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[1080px]">
-              <caption className="sr-only">Tolvas a controlar por Auditoría</caption>
-              <thead>
-                <tr>
-                  <th scope="col" className={`${TH} text-left`}>Tolva</th>
-                  <th scope="col" className={`${TH} text-left`}>Orden</th>
-                  <th scope="col" className={`${TH} text-left`}>Producto</th>
-                  <th scope="col" className={`${TH} text-left`}>Línea</th>
-                  <th scope="col" className={`${TH} text-left`}>Lavada</th>
-                  <th scope="col" className={`${TH} text-left`}>Lote PLC</th>
-                  <th scope="col" className={`${TH} text-left`}>Aprobó Calidad</th>
-                  <th scope="col" className={`${TH} text-left`}>Estado</th>
-                  <th scope="col" className={`${TH} text-left`}>Auditoría</th>
-                  {puedeRegistrar && <th scope="col" className={`${TH} text-right`}><span className="sr-only">Acción</span></th>}
-                </tr>
-              </thead>
-              <tbody>
-                {visibles.map((c) => {
-                  const est = ESTADOS_TOLVA[c.estado];
-                  return (
-                    <tr key={c.id} className="border-t border-gray-200 dark:border-slate-800">
-                      <td className={`${TD} font-bold tabular-nums`}>{c.codigo}</td>
-                      <td className={`${TD} tabular-nums`}>{c.orden}</td>
-                      <td className={TD}>
-                        <span className="block">{c.producto || '—'}</span>
-                        {c.kg && <span className="block text-[13px] text-gray-500 dark:text-slate-400">{c.kg} kg</span>}
-                      </td>
-                      <td className={`${TD} tabular-nums`}>{c.linea || '—'}</td>
-                      <td className={TD}>{c.lavada ? 'Sí' : 'No'}</td>
-                      <td className={TD}>
-                        <Link
-                          to={`/monitoreo/lotes/${c.lote.id}`}
-                          className="inline-flex min-h-9 items-center font-bold text-teal-600 underline dark:text-teal-400"
-                          aria-label={`Ver la etiqueta digital del lote ${c.lote.id}`}
-                        >
-                          #{c.lote.id}
-                        </Link>
-                      </td>
-                      <td className={`${TD} text-[14px]`}>
-                        <span className="block">{c.lote.calidad?.usuario || '—'}</span>
-                        <span className="block text-[13px] text-gray-500 dark:text-slate-400">{fechaHora(c.lote.calidad?.fecha)}</span>
-                      </td>
-                      <td className={`${TD} whitespace-nowrap`}>
-                        {est ? <Chip tipo={est.tipo}>{est.texto}</Chip> : '—'}
-                      </td>
-                      <td className={TD}>
-                        {c.control ? (
-                          <span className="flex flex-col items-start gap-1">
-                            <Chip tipo="calidad" icono={faCircleCheck} mayus>
-                              Controlada
-                            </Chip>
-                            <span className="text-[13px] text-gray-500 dark:text-slate-400">
-                              {c.control.usuario} · {fechaHora(c.control.fecha)}
-                            </span>
-                            {c.control.observaciones && (
-                              <span className="max-w-[260px] whitespace-pre-wrap text-[13px] font-medium">{c.control.observaciones}</span>
-                            )}
-                          </span>
-                        ) : (
-                          <Chip tipo="inc" icono={faHourglassHalf} mayus>
-                            Pendiente
-                          </Chip>
-                        )}
-                      </td>
-                      {puedeRegistrar && (
-                        <td className={`${TD} whitespace-nowrap text-right`}>
-                          {c.control ? (
-                            <button type="button" className={BOTON.secundario} onClick={() => quitar(c)}>
-                              Quitar control
-                            </button>
-                          ) : (
-                            <button type="button" className={BOTON.exito} onClick={() => controlar(c)}>
-                              <FontAwesomeIcon icon={faUserCheck} aria-hidden="true" />
-                              Controlar
-                            </button>
-                          )}
-                        </td>
-                      )}
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <DataTable
+            titulo="Tolvas a controlar por Auditoría"
+            columnas={columnas}
+            filas={visibles}
+            clave={(c) => c.id}
+            minWidth={1080}
+            buscador={false}
+            exportar="tolvas-a-controlar.csv"
+          />
         )}
         <Nota>
           El control de Auditoría es documental y no bloquea el uso de la tolva. El lote del PLC abre la etiqueta digital con

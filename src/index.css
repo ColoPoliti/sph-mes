@@ -1,5 +1,4 @@
 /* src/index.css */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -26,6 +25,11 @@ html.dark .textura-fondo {
 
   .sin-scrollbar::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Códigos (barras, lotes, MP, tolvas): cero con barra y variantes que distinguen I, l y 1 */
+  .codigo {
+    font-feature-settings: 'zero', 'ss02', 'tnum';
   }
 }
 

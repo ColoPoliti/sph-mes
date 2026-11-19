@@ -113,7 +113,7 @@ export default function SesionMenu() {
           className="absolute right-0 top-full z-50 mt-2 w-max min-w-[16rem] overflow-hidden whitespace-nowrap rounded-[10px] border border-gray-300 bg-white text-gray-900 shadow-lg dark:border-slate-700 dark:bg-slate-800 dark:text-white"
         >
           <button type="button" role="menuitem" onClick={otrasCredenciales} className={ITEM}>
-            <FontAwesomeIcon icon={faUsers} className="w-4 text-gray-500 dark:text-slate-400" aria-hidden="true" />
+            <FontAwesomeIcon icon={faUsers} className="w-4 text-gray-600 dark:text-slate-300" aria-hidden="true" />
             Ingresar con otras credenciales
           </button>
           <button

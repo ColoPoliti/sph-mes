@@ -10,7 +10,8 @@ import {
   faWarehouse,
 } from '@fortawesome/free-solid-svg-icons';
 import { Card, CardTitulo, Encabezado, EstadoConsulta, Nota } from '@/shared/components/base';
-import { BOTON, INPUT, TD, TH } from '@/shared/components/clases';
+import DataTable from '@/shared/components/DataTable';
+import { BOTON, INPUT } from '@/shared/components/clases';
 import { Chip } from '@/shared/components/ui';
 import { useConsulta } from '@/shared/hooks/useConsulta';
 import { alerta, confirmar, esc, toast } from '@/shared/lib/alertas';
@@ -126,6 +127,43 @@ export default function TolvasLinea() {
     recargar();
   };
 
+  // Tolvas en espera de una línea. "Sigue" sale de la prioridad, no del orden en pantalla.
+  const columnasEspera = (g) => [
+    {
+      id: 'tolva',
+      titulo: 'Tolva',
+      valor: (t) => t.codigo,
+      celda: (t) => (
+        <>
+          {t.codigo}
+          {g.siguiente?.codigo === t.codigo && (
+            <span className="ml-2">
+              <Chip tipo="curso" icono={faPlay} mayus>
+                Sigue
+              </Chip>
+            </span>
+          )}
+        </>
+      ),
+      clase: 'codigo whitespace-nowrap font-bold tabular-nums',
+    },
+    { id: 'orden', titulo: 'Orden', valor: (t) => t.orden, clase: 'codigo tabular-nums' },
+    { id: 'prioridad', titulo: 'Prioridad', valor: (t) => prioridad[t.orden], clase: 'tabular-nums' },
+    { id: 'producto', titulo: 'Producto', valor: (t) => t.producto },
+    { id: 'capacidad', titulo: 'Capacidad', valor: (t) => t.kg, celda: (t) => (t.kg ? `${t.kg} kg` : '—'), clase: 'tabular-nums' },
+    {
+      id: 'calidad',
+      titulo: 'Calidad',
+      valor: (t) => CALIDAD_TOLVA[t.calidad]?.texto,
+      celda: (t) => (
+        <Chip tipo={CALIDAD_TOLVA[t.calidad].tipo} mayus>
+          {CALIDAD_TOLVA[t.calidad].texto}
+        </Chip>
+      ),
+      clase: 'whitespace-nowrap',
+    },
+  ];
+
   return (
     <div className="flex flex-col gap-6">
       <Encabezado
@@ -161,7 +199,7 @@ export default function TolvasLinea() {
 
           {/* En uso */}
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[13px] font-bold uppercase tracking-[0.8px] text-gray-500 dark:text-slate-400">En uso:</span>
+            <span className="text-[14px] font-bold uppercase tracking-[0.8px] text-gray-600 dark:text-slate-300">En uso:</span>
             {g.enUso.length ? (
               g.enUso.map((t) => (
                 <span key={t.codigo} className="inline-flex items-center gap-2">
@@ -177,7 +215,7 @@ export default function TolvasLinea() {
                 </span>
               ))
             ) : (
-              <span className="text-[15px] font-medium text-gray-500 dark:text-slate-400">ninguna</span>
+              <span className="text-[15px] font-medium text-gray-600 dark:text-slate-300">ninguna</span>
             )}
           </div>
 
@@ -185,7 +223,7 @@ export default function TolvasLinea() {
           {puedeOperar && (
             <form className="flex flex-wrap items-end gap-2" onSubmit={(e) => cambiar(g, e)}>
               <label className="flex min-w-[220px] flex-1 flex-col gap-1.5 sm:max-w-xs">
-                <span className="text-[12px] font-extrabold uppercase tracking-[1.6px] text-gray-500 dark:text-slate-400">
+                <span className="text-[13px] font-extrabold uppercase tracking-[1.6px] text-gray-600 dark:text-slate-300">
                   Cambio de tolva
                 </span>
                 <span className="relative">
@@ -195,7 +233,7 @@ export default function TolvasLinea() {
                     aria-hidden="true"
                   />
                   <input
-                    className={`${INPUT} pl-9`}
+                    className={`${INPUT} codigo pl-9`}
                     placeholder="Escaneá el código de la tolva"
                     autoComplete="off"
                     value={escaneo[g.linea] || ''}
@@ -213,53 +251,16 @@ export default function TolvasLinea() {
           {/* En espera */}
           <EstadoConsulta vacio={!g.espera.length} textoVacio="No hay tolvas en espera para esta línea." />
           {g.espera.length > 0 && (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[760px]">
-                <caption className="sr-only">Tolvas en espera de la línea {g.linea}</caption>
-                <thead>
-                  <tr>
-                    <th scope="col" className={`${TH} text-left`}>Tolva</th>
-                    <th scope="col" className={`${TH} text-left`}>Orden</th>
-                    <th scope="col" className={`${TH} text-left`}>Prioridad</th>
-                    <th scope="col" className={`${TH} text-left`}>Producto</th>
-                    <th scope="col" className={`${TH} text-left`}>Capacidad</th>
-                    <th scope="col" className={`${TH} text-left`}>Calidad</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {g.espera.map((t) => {
-                    const sigue = g.siguiente?.codigo === t.codigo;
-                    const c = CALIDAD_TOLVA[t.calidad];
-                    return (
-                      <tr
-                        key={t.codigo}
-                        className={`border-t border-gray-200 dark:border-slate-800 ${sigue ? 'bg-teal-500/10 dark:bg-teal-400/10' : ''}`}
-                      >
-                        <td className={`${TD} whitespace-nowrap font-bold tabular-nums`}>
-                          {t.codigo}
-                          {sigue && (
-                            <span className="ml-2">
-                              <Chip tipo="curso" icono={faPlay} mayus>
-                                Sigue
-                              </Chip>
-                            </span>
-                          )}
-                        </td>
-                        <td className={`${TD} tabular-nums`}>{t.orden}</td>
-                        <td className={`${TD} tabular-nums`}>{prioridad[t.orden] ?? '—'}</td>
-                        <td className={TD}>{t.producto || '—'}</td>
-                        <td className={`${TD} tabular-nums`}>{t.kg ? `${t.kg} kg` : '—'}</td>
-                        <td className={`${TD} whitespace-nowrap`}>
-                          <Chip tipo={c.tipo} mayus>
-                            {c.texto}
-                          </Chip>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+            <DataTable
+              titulo={`Tolvas en espera de la línea ${g.linea}`}
+              columnas={columnasEspera(g)}
+              filas={g.espera}
+              clave={(t) => t.codigo}
+              minWidth={760}
+              buscador={false}
+              porPagina={25}
+              claseFila={(t) => (g.siguiente?.codigo === t.codigo ? 'bg-teal-500/10 dark:bg-teal-400/10' : '')}
+            />
           )}
         </Card>
       ))}

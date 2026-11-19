@@ -227,7 +227,7 @@ export default function Historial() {
             </div>
 
             {/* Nota de info al pie de la card (mismo estilo que las de la etiqueta digital) */}
-            <p className="m-0 flex basis-full items-start gap-2 text-[15px] font-light text-gray-500 dark:text-slate-400">
+            <p className="m-0 flex basis-full items-start gap-2 text-[15px] font-normal text-gray-600 dark:text-slate-300">
               <FontAwesomeIcon
                 icon={faCircleInfo}
                 className="mt-[3px] flex-none text-violet-600 dark:text-violet-400"
@@ -260,11 +260,12 @@ export default function Historial() {
           minWidth={puedeAprobar ? 880 : 720}
           onAprobar={puedeAprobar ? onAprobar : undefined}
           onInfo={puedeAprobar ? mostrarInfoLote : undefined}
+          exportar="historial-elaboraciones.csv"
         />
 
         <span
           className={`text-sm font-medium ${
-            aviso.error ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-slate-400'
+            aviso.error ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-slate-300'
           }`}
         >
           {aviso.texto}
@@ -285,7 +286,7 @@ export default function Historial() {
               </span>
             ))}
             {filas.length >= 500 && (
-              <span className="text-gray-500 dark:text-slate-400">(se muestran las 500 más recientes)</span>
+              <span className="text-gray-600 dark:text-slate-300">(se muestran las 500 más recientes)</span>
             )}
           </footer>
         )}

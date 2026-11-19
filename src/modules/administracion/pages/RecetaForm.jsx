@@ -96,7 +96,7 @@ function Formulario({ receta }) {
         <CardTitulo icono={faFlask}>Producto</CardTitulo>
         <div className="flex flex-wrap gap-4">
           <Campo etiqueta="Código *">
-            <input className={INPUT} value={form.codigo_barra} onChange={campo('codigo_barra')} required inputMode="numeric" />
+            <input className={`${INPUT} codigo`} value={form.codigo_barra} onChange={campo('codigo_barra')} required inputMode="numeric" />
           </Campo>
           <Campo etiqueta="Producto *">
             <input className={INPUT} value={form.nombre} onChange={campo('nombre')} required />
@@ -130,7 +130,7 @@ function Formulario({ receta }) {
                     <th scope="row" className={`${TD} text-left font-bold`}>{i.nombre}</th>
                     <td className={TD}>
                       <input
-                        className={INPUT}
+                        className={`${INPUT} codigo`}
                         aria-label={`Código MP de ${i.nombre}`}
                         value={x.codigo_mp}
                         onChange={(e) => cambiarInsumo(i.etapa, 'codigo_mp', e.target.value)}
@@ -147,11 +147,11 @@ function Formulario({ receta }) {
                           value={x.cantidad}
                           onChange={(e) => cambiarInsumo(i.etapa, 'cantidad', e.target.value)}
                         />
-                        <span className="w-8 text-[15px] font-bold text-gray-500 dark:text-slate-400">{i.unidad}</span>
+                        <span className="w-8 text-[15px] font-bold text-gray-600 dark:text-slate-300">{i.unidad}</span>
                       </span>
                     </td>
                     {OTROS.map((t) => (
-                      <td key={t} className={`${TD} text-right tabular-nums text-gray-500 dark:text-slate-400`}>
+                      <td key={t} className={`${TD} text-right tabular-nums text-gray-600 dark:text-slate-300`}>
                         {x.cantidad === '' ? '—' : `${cant((Number(x.cantidad) * t) / BASE_KG)} ${i.unidad}`}
                       </td>
                     ))}
@@ -164,10 +164,10 @@ function Formulario({ receta }) {
                 <th scope="row" colSpan={2} className={`${TD} text-left font-bold`}>Total</th>
                 <td className={`${TD} font-bold tabular-nums`}>
                   {cant(total)} kg{' '}
-                  <span className="font-medium text-gray-500 dark:text-slate-400">de {BASE_KG} kg</span>
+                  <span className="font-medium text-gray-600 dark:text-slate-300">de {BASE_KG} kg</span>
                 </td>
                 {OTROS.map((t) => (
-                  <td key={t} className={`${TD} text-right font-bold tabular-nums text-gray-500 dark:text-slate-400`}>
+                  <td key={t} className={`${TD} text-right font-bold tabular-nums text-gray-600 dark:text-slate-300`}>
                     {cant((total * t) / BASE_KG)} kg
                   </td>
                 ))}

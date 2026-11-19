@@ -10,7 +10,7 @@ const TONOS = {
   ok: 'text-emerald-600 dark:text-emerald-400',
   error: 'text-red-600 dark:text-red-400',
   activo: 'text-violet-600 dark:text-violet-400',
-  inactivo: 'text-gray-500 dark:text-slate-400',
+  inactivo: 'text-gray-600 dark:text-slate-300',
 };
 
 const VALOR = 'text-[18px] font-extrabold leading-none';
@@ -34,7 +34,7 @@ function Celda({ etiqueta, icono, to, className = '', children }) {
   const contenido = (
     <>
       <span className={`${labelClass} flex min-w-0 items-center gap-2`} title={etiqueta}>
-        <FontAwesomeIcon icon={icono} className="flex-none text-gray-400 dark:text-slate-500" aria-hidden="true" />
+        <FontAwesomeIcon icon={icono} className="flex-none text-gray-400 dark:text-slate-400" aria-hidden="true" />
         <span className="truncate">{etiqueta}</span>
       </span>
       <span className="flex flex-none items-center gap-2">{children}</span>
@@ -75,22 +75,17 @@ export default function EstadoPlanta({ usuario, rol, mqttOk, produciendo, enLine
     <section aria-label="Estado de planta" className={`${CARD} grid grid-cols-1 overflow-hidden !p-0 sm:grid-cols-2 xl:grid-cols-[repeat(4,auto)]`}>
       {/* "MES · usuario (rol)" en una línea. El nombre completo y el texto de la sesión van en el tooltip */}
       <div
-        className="flex min-h-[60px] min-w-0 items-center gap-2 px-5 py-3 xl:px-4"
+        className="flex min-h-[60px] min-w-0 items-center gap-2 bg-gradient-to-r from-teal-600 to-violet-600 px-5 py-3 text-white xl:px-4"
         title={`Manufacturing Execution System · ${
           usuario ? `Sesión iniciada como ${sesion}` : 'Monitoreo es de libre consulta. Para el resto de los módulos iniciá sesión.'
         }`}
       >
         <h1 className="m-0 flex-none text-lg font-extrabold leading-none">
-          <span
-            className="bg-gradient-to-r from-teal-600 to-violet-600 bg-clip-text text-transparent dark:from-teal-400 dark:to-violet-400"
-            aria-hidden="true"
-          >
-            MES
-          </span>
+          <span aria-hidden="true">MES</span>
           <span className="sr-only">Manufacturing Execution System</span>
         </h1>
-        <span className="text-gray-400 dark:text-slate-500" aria-hidden="true">·</span>
-        <span className="min-w-0 truncate text-[13px] font-medium text-gray-500 dark:text-slate-400">
+        <span className="text-white/70" aria-hidden="true">·</span>
+        <span className="min-w-0 truncate text-[14px] font-semibold text-white">
           {usuario && <span className="sr-only">Sesión iniciada como </span>}
           {sesion}
         </span>
@@ -106,7 +101,7 @@ export default function EstadoPlanta({ usuario, rol, mqttOk, produciendo, enLine
         <span className={`${VALOR} ${TONOS[salas]}`}>
           <AnimatedCounter value={produciendo} decimals={0} />
         </span>
-        <span className="text-[13px] font-bold text-gray-500 dark:text-slate-400">{produciendo === 1 ? 'sala' : 'salas'}</span>
+        <span className="text-[14px] font-bold text-gray-600 dark:text-slate-300">{produciendo === 1 ? 'sala' : 'salas'}</span>
       </Celda>
 
       <Celda etiqueta="PLC" icono={faMicrochip} className="border-t sm:border-l xl:border-t-0">
