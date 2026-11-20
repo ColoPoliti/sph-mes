@@ -13,10 +13,11 @@
 // PROVISORIO: las credenciales se validan acá, en el navegador. Cuando exista el
 // login real (ej.: login.php contra la base), reemplazar SOLO el cuerpo de
 // validarCredenciales por esa consulta (debe devolver el perfil o null).
-// Mientras tanto se toman de .env.local y, si no están definidas, usuario = clave:
+// Mientras tanto se toman de config.env / .env.local y, si no están definidas, usuario = clave:
 //   admin / admin · produccion / produccion · elaborador / elaborador · linea / linea · auditoria / auditoria · calidad / calidad · compras / compras · usuario / usuario
 
 import { useSyncExternalStore } from 'react';
+import { env } from '@/app/entorno';
 
 const CLAVE_SESION = 'sph-mes-sesion';
 
@@ -54,10 +55,9 @@ export const puede = (rol, permiso) => Boolean(rol) && (PERMISOS[permiso] || [])
 
 export async function validarCredenciales(usuario, clave) {
   const u = usuario.trim();
-  const env = import.meta.env;
   const cuentas = Object.keys(ROLES).map((rol) => {
     const k = rol.toUpperCase();
-    return { usuario: env[`VITE_${k}_USER`] || rol, clave: env[`VITE_${k}_PASS`] || rol, rol };
+    return { usuario: env(`${k}_USER`, rol), clave: env(`${k}_PASS`, rol), rol };
   });
   return cuentas.find((c) => c.usuario === u && c.clave === clave)?.rol || null;
 }

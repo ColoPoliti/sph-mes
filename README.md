@@ -121,10 +121,12 @@ Para volver a los datos de ejemplo de Compras: borrar las claves `sph-mes:*` del
 
 ## Producción
 
-1. Crear `.env.production.local` (a partir de `.env.example`) con los valores del servidor.
-   Las variables `VITE_*` **se graban al compilar**: si se cambia una, hay que volver a compilar y subir.
-   Todo lo que va ahí queda visible en el navegador (por eso el usuario MQTT es de solo lectura).
-2. `npm ci && npm run build` y subir el contenido de `dist/` a la raíz del sitio.
+1. `npm ci && npm run build` y subir el contenido de `dist/` a la raíz del sitio.
+2. Editar **`config.env`** en la raíz del sitio (viene de `public/config.env`): broker MQTT, API y
+   usuarios por perfil. Se aplica al recargar la página, **sin recompilar**.
+   Prioridad de cada valor: `config.env` › `VITE_*` grabada al compilar › valor de fábrica
+   (ver `src/app/entorno.js`). Todo lo que va ahí queda visible en el navegador
+   (por eso el usuario MQTT es de solo lectura).
 3. Configurar en el servidor web (Nginx o Apache):
    - **Fallback de rutas** a `index.html` (para que `/calidad/pendientes` funcione al recargar).
    - **Proxy de `/api`** hacia la API PHP (`http://10.200.1.243:8080`; no envía CORS).
