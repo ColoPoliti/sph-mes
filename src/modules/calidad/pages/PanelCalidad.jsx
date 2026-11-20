@@ -27,6 +27,9 @@ export default function PanelCalidad() {
   const revisados = aprobados + rechazados;
   // Los más viejos primero: son los que más urge liberar
   const masAntiguos = [...pendientes].sort((a, b) => String(a.inicio).localeCompare(String(b.inicio))).slice(0, 8);
+  // N° de orden: posición en la lista (1 = el más antiguo); se mantiene al reordenar la tabla
+  const nroItem = new Map(masAntiguos.map((l, i) => [l.id, i + 1]));
+  const columnaItem = { id: 'item', titulo: 'N° orden', alinear: 'center', valor: (l) => nroItem.get(l.id), clase: 'tabular-nums font-bold' };
 
   return (
     <div className="flex flex-col gap-6">
@@ -75,7 +78,8 @@ export default function PanelCalidad() {
           <LotesTable
             filas={masAntiguos}
             conSala
-            minWidth={puedeAprobar ? 880 : 720}
+            minWidth={puedeAprobar ? 960 : 800}
+            columnasMedio={[columnaItem]}
             onAprobar={puedeAprobar ? onAprobar : undefined}
             onInfo={mostrarInfoLote}
             rutaLote={(id) => `/calidad/lotes/${id}`}

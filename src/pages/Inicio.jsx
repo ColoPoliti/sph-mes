@@ -8,11 +8,12 @@ import Tooltip, { FLECHA_ARRIBA } from '@/shared/components/Tooltip';
 import { useSesion } from '@/shared/lib/auth';
 import EstadoPlanta from './inicio/EstadoPlanta';
 import TarjetaModulo from './inicio/TarjetaModulo';
-import { ejecutandoEnElaboracion, resumirMonitoreo, useResumenModulos } from './inicio/useResumenModulos';
+import { ejecutandoEnPlcs, resumirMonitoreo, useResumenModulos } from './inicio/useResumenModulos';
 
 // Las cards se pueden reordenar arrastrándolas, pero la ESTRUCTURA de la grilla queda fija:
 // hay lugares, y al soltar una card sobre otra intercambian de lugar.
-//   - LUGAR_ALTO: ocupa dos filas (desde tablet). Por defecto, Monitoreo.
+//   - LUGAR_ALTO: ocupa dos filas y va fijo arriba a la derecha (última columna, filas 1 y 2) en
+//     cualquier ancho desde tablet; las demás cards se acomodan alrededor. Por defecto, Monitoreo.
 //   - LUGARES_APILADOS: dos cards compactas, una encima de la otra, en una misma celda.
 // El orden de cada usuario se guarda en este navegador.
 const ESTADO = 'estado'; // card de estado de planta (MES, broker, produciendo, PLC)
@@ -65,7 +66,7 @@ export default function Inicio() {
   const enLineaN = salas.filter((s) => enLinea(s, now)).length;
   const produciendo = salas.filter((s) => enLinea(s, now) && !enEspera(s)).length;
   const monitoreo = resumirMonitoreo(salas, now);
-  const { resumen, cargando } = useResumenModulos(puede, ejecutandoEnElaboracion(salas, now));
+  const { resumen, cargando } = useResumenModulos(puede, ejecutandoEnPlcs(salas, now));
 
   const cambiarOrden = (nuevo) => {
     setOrden(nuevo);
@@ -146,7 +147,7 @@ export default function Inicio() {
         terminarArrastre();
       }}
       onDragEnd={terminarArrastre}
-      className={`group/celda relative flex min-w-0 flex-col rounded-md transition ${alto ? 'sm:row-span-2' : ''} ${compacta ? 'sm:flex-1' : ''} ${
+      className={`group/celda relative flex min-w-0 flex-col rounded-md transition ${alto ? 'sm:[grid-column:-2/-1] sm:[grid-row:1/span_2]' : ''} ${compacta ? 'sm:flex-1' : ''} ${
         arrastrada === key ? 'opacity-40' : ''
       } ${destino === key ? 'outline-dashed outline-2 outline-offset-4 outline-violet-500 dark:outline-violet-400' : ''} ${
         arrastrada ? 'cursor-grabbing' : 'sm:cursor-grab'

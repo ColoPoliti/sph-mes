@@ -1,4 +1,9 @@
+import { faFlask, faIndustry, faSprayCan } from '@fortawesome/free-solid-svg-icons';
 import { CONFIG } from '@/modules/monitoreo/config';
+
+// Ícono de cada área (por su key en CONFIG.AREAS); un área nueva sin ícono usa el de fábrica
+const ICONOS_AREA = { elaboracion: faFlask, aerosoles: faSprayCan };
+export const iconoArea = (key) => ICONOS_AREA[key] || faIndustry;
 
 // El PLC publica etapa 0 con todo en cero cuando está parado, o etapa 7 (en espera).
 export const esEspera = (etapa, sp, estado) =>

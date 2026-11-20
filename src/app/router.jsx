@@ -26,7 +26,7 @@ function Raiz() {
 // Rutas viejas del monitor (sph-monitoreo) -> nuevas, para no romper links guardados
 function LoteViejo() {
   const { id } = useParams();
-  return <Navigate to={`/monitoreo/lotes/${id}`} replace />;
+  return <Navigate to={`/elaboracion/lotes/${id}`} replace />;
 }
 
 export const router = createBrowserRouter([
@@ -75,7 +75,7 @@ export const router = createBrowserRouter([
             children: rutasAdministracion,
           },
 
-          { path: 'historial', element: <Navigate to="/monitoreo/historial" replace /> },
+          { path: 'historial', element: <Navigate to="/elaboracion/historial" replace /> },
           { path: 'lotes/:id', element: <LoteViejo /> },
           { path: '*', element: <ErrorRuta noEncontrada /> },
         ],

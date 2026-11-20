@@ -28,6 +28,9 @@ export default function Decisiones() {
     [filas, decision],
   );
 
+  // N° de orden: posición en el historial (1 = la decisión más reciente); se mantiene al reordenar la tabla
+  const nroItem = new Map(revisados.map((l, i) => [l.id, i + 1]));
+
   const exportar = () =>
     descargarCSV('decisiones-calidad.csv', revisados, [
       { titulo: 'Lote', valor: (l) => l.id },
@@ -35,6 +38,7 @@ export default function Decisiones() {
       { titulo: 'Código de barras', valor: (l) => l.codigo_barra },
       { titulo: 'Sector', valor: (l) => areaDe(l.area)?.label || l.area },
       { titulo: 'PLC', valor: (l) => l.sala },
+      { titulo: 'N° orden', valor: (l) => nroItem.get(l.id) },
       { titulo: 'Decisión', valor: (l) => l.estado },
       { titulo: 'Revisó', valor: (l) => l.calidad?.usuario },
       { titulo: 'Fecha revisión', valor: (l) => l.calidad?.fecha },
@@ -50,6 +54,7 @@ export default function Decisiones() {
     },
     { id: 'producto', titulo: 'Producto', valor: (l) => l.nombre_producto },
     { id: 'sector', titulo: 'Sector / PLC', valor: (l) => `${areaDe(l.area)?.label || l.area} ${l.sala}` },
+    { id: 'item', titulo: 'N° orden', alinear: 'center', valor: (l) => nroItem.get(l.id), clase: 'tabular-nums font-bold' },
     {
       id: 'elaborado',
       titulo: 'Elaborado',
@@ -109,7 +114,7 @@ export default function Decisiones() {
       <Card className="flex flex-col gap-2.5">
         <EstadoConsulta cargando={cargando && !filas.length} error={error} vacio={!cargando && !revisados.length} textoVacio="No hay decisiones en el período." />
         {revisados.length > 0 && (
-          <DataTable titulo="Decisiones de calidad" columnas={columnas} filas={revisados} clave={(l) => l.id} minWidth={900} />
+          <DataTable titulo="Decisiones de calidad" columnas={columnas} filas={revisados} clave={(l) => l.id} minWidth={980} />
         )}
       </Card>
     </div>

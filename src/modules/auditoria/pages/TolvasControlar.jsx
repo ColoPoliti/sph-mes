@@ -159,7 +159,7 @@ export default function TolvasControlar() {
       valor: (c) => c.lote.id,
       celda: (c) => (
         <Tooltip texto={`Ver la etiqueta digital del lote ${c.lote.id}`}><Link
-          to={`/monitoreo/lotes/${c.lote.id}`}
+          to={`/auditoria/lotes/${c.lote.id}`}
           className="inline-flex min-h-9 items-center font-bold text-teal-600 underline dark:text-teal-400"
           aria-label={`Ver la etiqueta digital del lote ${c.lote.id}`}
         >

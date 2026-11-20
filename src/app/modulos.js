@@ -21,6 +21,19 @@ import {
   // faBoxesStacked, // (Compras, oculto)
   // faTruckField, // (Compras, oculto)
 } from '@fortawesome/free-solid-svg-icons';
+import { CONFIG } from '@/modules/monitoreo/config';
+import { iconoArea } from '@/modules/monitoreo/lib/rooms';
+
+// Ítems del menú de Elaboración: un acceso por PLC de cada área (Elaboración y Aerosoles)
+const menuPlcs = () =>
+  CONFIG.AREAS.flatMap((a) =>
+    a.plcs.map((plc) => ({
+      to: `/elaboracion/${a.key}/${plc}`,
+      label: `PLC ${plc} · ${a.label}`,
+      sub: `Últimas elaboraciones de ${a.label} ${plc}`,
+      icono: iconoArea(a.key),
+    })),
+  );
 
 /**
  * corta      descripción breve (globo de "Entrar" en inicio y tooltip de las solapas)
@@ -59,25 +72,25 @@ export const MODULOS = [
   {
     key: 'elaboracion',
     label: 'Elaboración',
-    descripcion: 'Órdenes aprobadas por Calidad, por línea y prioridad, con la receta para cada tolva.',
-    corta: 'Órdenes a elaborar por línea',
+    descripcion: 'Elaboraciones de cada PLC (Elaboración y Aerosoles), historial y etiqueta digital de cada lote.',
+    corta: 'Elaboraciones por PLC',
     icono: faGears,
     permiso: 'elaboracion.ver',
     menu: [
-      { to: '/elaboracion', label: 'Órdenes a elaborar', sub: 'Cola por línea', icono: faGears, end: true },
+      { to: '/elaboracion', label: 'Todos los PLC', sub: 'Últimas elaboraciones', icono: faGears, end: true },
+      ...menuPlcs(),
+      { to: '/elaboracion/historial', label: 'Historial de elaboraciones', sub: 'Todos los PLC', icono: faClockRotateLeft },
     ],
   },
   {
     key: 'monitoreo',
     label: 'Monitoreo',
-    descripcion: 'Salas y PLC en vivo, receta en curso e historial de elaboraciones.',
+    descripcion: 'Salas y PLC en vivo y receta en curso.',
     corta: 'Salas y PLC en vivo',
     icono: faIndustry,
     permiso: null,
     menuSalas: true,
-    menu: [
-      { to: '/monitoreo/historial', label: 'Historial de elaboraciones', sub: 'Todas las salas', icono: faClockRotateLeft },
-    ],
+    menu: [],
   },
   {
     key: 'produccion',

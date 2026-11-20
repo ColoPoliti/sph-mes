@@ -9,6 +9,7 @@ import { useAprobacionCalidad } from '../lib/useAprobacionCalidad';
 import { SIN_REVISAR, useLotesCalidad } from '../lib/useLotesCalidad';
 import { NIVELES, SEMAFORO_MIN, duracion, esperaSeg, nivel } from '../lib/semaforo';
 import FiltroPeriodo from '../components/FiltroPeriodo';
+import { EN_TABLA } from '@/shared/components/ui';
 
 // Reloj que avanza cada segundo, para el temporizador de cuarentena
 function useAhora(ms = 1000) {
@@ -27,7 +28,7 @@ function Temporizador({ seg }) {
   const { chip, punto, texto } = NIVELES[n];
   return (
     <span
-      className={`inline-flex items-center gap-2 rounded-md border border-current px-2.5 py-[3px] text-[15px] font-bold tabular-nums ${chip}`}
+      className={`inline-flex items-center gap-2 rounded-md border border-current px-2.5 py-[3px] text-[15px] font-bold tabular-nums ${EN_TABLA} [td_&]:gap-1.5 ${chip}`}
       title={texto}
     >
       <span className={`h-2.5 w-2.5 flex-none rounded-full ${punto}`} aria-hidden="true" />
@@ -80,6 +81,16 @@ export default function LotesPendientes() {
     </button>
   );
 
+  // N° de orden: posición del lote en la bandeja (1 = el más demorado); se mantiene al reordenar la tabla
+  const nroItem = new Map(visibles.map((l, i) => [l.id, i + 1]));
+  const columnaItem = {
+    id: 'item',
+    titulo: 'N° orden',
+    alinear: 'center',
+    valor: (l) => nroItem.get(l.id),
+    clase: 'tabular-nums font-bold',
+  };
+
   const columnaEspera = {
     id: 'espera',
     titulo: 'En cuarentena',
@@ -124,10 +135,11 @@ export default function LotesPendientes() {
           <LotesTable
             filas={visibles}
             conSala
-            minWidth={puedeAprobar ? 1000 : 840}
+            minWidth={puedeAprobar ? 1080 : 920}
             onAprobar={puedeAprobar ? onAprobar : undefined}
             onInfo={mostrarInfoLote}
             rutaLote={(id) => `/calidad/lotes/${id}`}
+            columnasMedio={[columnaItem]}
             columnasExtra={[columnaEspera]}
             buscador={false}
             exportar="lotes-a-liberar.csv"

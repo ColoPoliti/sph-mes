@@ -7,17 +7,21 @@ organizado en módulos independientes.
 | Módulo | Ruta | Qué hace | Acceso |
 | --- | --- | --- | --- |
 | **Programación** | `/programacion` | Órdenes de producción leídas de Bejerman, agrupadas por línea; Producción/admin cambian la prioridad o reasignan la línea | `programacion.ver` |
-| **Monitoreo** | `/monitoreo` | Salas/PLC en vivo por MQTT, receta en curso, gráfico de peso, historial y etiqueta digital (todo lo del monitor original) | Libre |
+| **Monitoreo** | `/monitoreo` | Salas/PLC en vivo por MQTT: producto, etapa, peso, válvula, receta en curso y gráfico de peso | Libre |
 | **Administración** | `/administracion` | Maestro de tolvas: receta (alcohol, colorante, glicerina, agua, esencia) de cada producto a partir de su código | `admin.ver` |
 | **Calidad** | `/calidad` | Panel con indicadores, revisión de cantidades de las órdenes de producción (antes de Elaboración), bandeja de lotes a liberar (aprobar/rechazar), inspección de materia prima recibida y registro de decisiones exportable | `calidad.ver` |
-| **Elaboración** | `/elaboracion` | Cola por línea de las órdenes con cantidades aprobadas por Calidad, en orden de prioridad, con la receta escalada a la tolva (250/1000 kg) | `elaboracion.ver` |
+| **Elaboración** | `/elaboracion` | Elaboraciones de los PLC: una card por PLC (Elaboración y Aerosoles) con su estado en vivo, últimas elaboraciones de todos o de uno (`/elaboracion/:area/:plc`), historial con filtros (`/elaboracion/historial`) y etiqueta digital de cada lote (`/elaboracion/lotes/:id`) | `elaboracion.ver` |
 | **Producción** | `/produccion` | Tolvas de cada línea: en uso, en espera por prioridad (con estado de Calidad) y cambio de tolva escaneando el código, validando que sea la que sigue | `produccion.ver` |
 | **Auditoría** | `/auditoria` | Control documental de cada tolva aprobada por Calidad (orden, lavado, lote del PLC, aprobación); no bloquea el uso | `auditoria.ver` |
 | **Compras** | `/compras` | Órdenes de compra (borrador → aprobación → recepción), proveedores, stock de materias primas con punto de pedido y recepciones | `compras.ver` |
 
 Los módulos están conectados como en planta:
 **Compras recibe una OC → se genera una recepción “en inspección” → Calidad la libera → recién ahí suma stock.**
-Y los lotes que produce Monitoreo son los que Calidad libera.
+Y los lotes que registran los PLC (se ven en Elaboración) son los que Calidad libera.
+
+> La vista anterior de Elaboración, "Órdenes a elaborar" (cola por línea con receta escalada a la tolva y asignación de tolvas),
+> se quitó el 2026-11-19. Está intacta en el commit `4474790`:
+> `git show 4474790:src/modules/elaboracion/pages/OrdenesElaborar.jsx`
 
 ## Desarrollo
 
@@ -40,7 +44,7 @@ Por defecto usuario = contraseña:
 | --- | --- | --- |
 | `admin` | Administrador | Todo, incluida la aprobación de órdenes de compra |
 | `produccion` | Producción | Cambiar la prioridad de las órdenes de producción y reasignarlas de línea |
-| `elaborador` | Elaborador | Ver la cola de órdenes a elaborar con su receta y asignarles tolvas (escaneo, regla de lavado) |
+| `elaborador` | Elaborador | Ver las elaboraciones de cada PLC, el historial y la etiqueta digital de los lotes |
 | `linea` | Línea | Cambio de tolva en su línea y marcar tolvas vacías |
 | `auditoria` | Auditoría | Registrar el control documental de cada tolva |
 | `calidad` | Calidad | Aprobar/rechazar lotes e ingresos de MP |
@@ -71,11 +75,12 @@ src/
   modules/
     programacion/        lib/api.js (órdenes de Bejerman + prioridad/línea), pages/Ordenes
     administracion/      lib/api.js (maestro de tolvas), pages/ (Recetas, RecetaForm)
-    elaboracion/         pages/OrdenesElaborar (cola de órdenes aprobadas, receta por tolva)
+    elaboracion/         pages/ (Elaboraciones: cards por PLC + últimas elaboraciones, Historial,
+                         EtiquetaDigital; Calidad y Auditoría reusan la etiqueta en sus rutas)
     produccion/          pages/TolvasLinea (tolvas por línea, cambio de tolva)
     auditoria/           lib/api.js (controles), pages/TolvasControlar
     monitoreo/           config.js (salas/PLC), MonitorContext (MQTT), lib/ (api, demo, rooms, pdf),
-                         components/ (SalasMenu, PesoChart), pages/ (Dashboard, Historial, EtiquetaDigital)
+                         components/ (SalasMenu, PesoChart), pages/Dashboard (vista en vivo)
     calidad/             lib/ (aprobaciones, modales, hooks), pages/ (Panel, LotesPendientes,
                          IngresosMP, Decisiones)
     compras/             data/semilla.js, lib/ (api, estados), components/, pages/ (Panel, Ordenes,
@@ -116,9 +121,19 @@ Para volver a los datos de ejemplo de Compras: borrar las claves `sph-mes:*` del
 
 ## Producción
 
-Igual que el monitor original: subir `dist/` y configurar en el servidor
+1. Crear `.env.production.local` (a partir de `.env.example`) con los valores del servidor.
+   Las variables `VITE_*` **se graban al compilar**: si se cambia una, hay que volver a compilar y subir.
+   Todo lo que va ahí queda visible en el navegador (por eso el usuario MQTT es de solo lectura).
+2. `npm ci && npm run build` y subir el contenido de `dist/` a la raíz del sitio.
+3. Configurar en el servidor web (Nginx o Apache):
+   - **Fallback de rutas** a `index.html` (para que `/calidad/pendientes` funcione al recargar).
+   - **Proxy de `/api`** hacia la API PHP (`http://10.200.1.243:8080`; no envía CORS).
+   - **Proxy de `/mqtt`** hacia el WebSocket del broker (`:9001`) si el sitio va por HTTPS,
+     compilando con `VITE_MQTT_URL=wss://<dominio>/mqtt`.
+4. Probar primero con `/?demo` (sin API ni broker) y después sin demo.
 
-1. **Fallback de rutas** a `index.html` (para que `/calidad/pendientes` funcione al recargar).
-2. **Proxy de `/api`** hacia la API PHP (no envía CORS).
+El detalle de cada variable, ejemplos de configuración de Nginx/Apache y un checklist de
+problemas comunes están en el documento *SPH MES: configuración (.env) y despliegue en servidor*.
 
-Las rutas del monitor viejo (`/historial`, `/lotes/:id`) redirigen solas a las nuevas.
+Rutas viejas que redirigen solas: `/historial` y `/monitoreo/historial` → `/elaboracion/historial`;
+`/lotes/:id` y `/monitoreo/lotes/:id` → `/elaboracion/lotes/:id`.

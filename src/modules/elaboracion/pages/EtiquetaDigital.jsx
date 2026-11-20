@@ -102,7 +102,7 @@ export default function EtiquetaDigital() {
 
   const volver = () => {
     if (window.history.length > 1) navigate(-1);
-    else navigate('/monitoreo');
+    else navigate('/elaboracion');
   };
 
   const lote = data?.lote;

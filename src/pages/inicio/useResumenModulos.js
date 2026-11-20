@@ -126,26 +126,35 @@ function resumirCalidad({ lotes }) {
   };
 }
 
-function resumirElaboracion({ ordenes, tolvas }, ejecutando) {
-  if (!ordenes) return null;
-  const grupos = porLinea(ordenes).map((g) => ({
-    linea: g.linea,
-    aprobadas: contar(g.ordenes, (o) => estadoRevision(o) === 'aprobado'),
-  }));
-  const sucias = tolvas ? contar(tolvas, (t) => t.estado === 'sucia') : null;
+/**
+ * Elaboraciones de los PLC (Elaboración y Aerosoles), igual que la solapa Elaboración:
+ * cuántas se hicieron hoy, una columna por PLC y los PLC que están elaborando ahora.
+ */
+function resumirElaboracion({ lotes }, ejecutando) {
+  if (!lotes) return null;
+  const hoy = hoyISO(0);
+  const deHoy = lotes.filter((l) => diaDe(l) === hoy);
+  const columnas = CONFIG.AREAS.flatMap((a) =>
+    a.plcs.map((plc) => {
+      const valor = contar(deHoy, (l) => l.area === a.key && String(l.sala) === String(plc));
+      return {
+        clave: `${a.key}/${plc}`,
+        // Inicial del área + PLC (E001, A001): el nombre completo va en el globo
+        etiqueta: `${a.label.charAt(0)}${plc}`,
+        valor,
+        detalle: `${a.label} PLC ${plc}: ${valor} ${valor === 1 ? 'elaboración' : 'elaboraciones'} hoy`,
+      };
+    }),
+  );
+  const incompletas = contar(deHoy, (l) => l.estado === 'incompleta');
   return {
-    valor: grupos.reduce((n, g) => n + g.aprobadas, 0),
-    unidad: 'órdenes en cola',
-    grafico: {
-      tipo: 'columnas',
-      columnas: columnasPorLinea(grupos, (g) => g.aprobadas),
-      rotulos: 'todos',
-      vacio: 'No hay órdenes aprobadas para elaborar.',
-    },
+    valor: deHoy.length,
+    unidad: 'elaboraciones hoy',
+    grafico: { tipo: 'columnas', columnas, rotulos: 'todos', vacio: 'No hay PLC configurados.' },
     datos: [
       { etiqueta: 'En ejecución', valor: ejecutando },
-      { etiqueta: 'Tolvas asignadas', valor: tolvas ? contar(tolvas, (t) => t.estado === 'elaboracion') : '—' },
-      { etiqueta: 'Tolvas vacías', valor: sucias ?? '—', aviso: sucias > 0 ? 'alerta' : null },
+      { etiqueta: 'Incompletas hoy', valor: incompletas, aviso: incompletas > 0 ? 'alerta' : null },
+      { etiqueta: 'Últimos 7 días', valor: contar(lotes, (l) => diaDe(l) >= hoyISO(-DIAS_PANEL)) },
     ],
   };
 }
@@ -271,7 +280,7 @@ const historialReciente = () => getHistorial({ sector: 'todos', desde: hoyISO(-D
  * Cada uno es el resumen de su tarjeta, o null si todavía no llegó o no se pudo consultar.
  * `cargando` es true hasta que todas las fuentes respondieron por primera vez.
  */
-export function useResumenModulos(puede, ejecutandoElaboracion) {
+export function useResumenModulos(puede, ejecutandoPlcs) {
   const ver = {
     programacion: puede('programacion.ver'),
     calidad: puede('calidad.ver'),
@@ -282,9 +291,9 @@ export function useResumenModulos(puede, ejecutandoElaboracion) {
     admin: puede('admin.ver'),
   };
 
-  const ordenes = useFuente(ver.programacion || ver.elaboracion, getOrdenesBejerman);
-  const lotes = useFuente(ver.calidad || ver.produccion || ver.auditoria, historialReciente);
-  const tolvas = useFuente(ver.elaboracion || ver.produccion || ver.auditoria || ver.admin, getTolvas);
+  const ordenes = useFuente(ver.programacion, getOrdenesBejerman);
+  const lotes = useFuente(ver.calidad || ver.elaboracion || ver.produccion || ver.auditoria, historialReciente);
+  const tolvas = useFuente(ver.produccion || ver.auditoria || ver.admin, getTolvas);
   const auditorias = useFuente(ver.auditoria, getAuditorias);
   const recetas = useFuente(ver.admin, getRecetas);
   const comprasOrdenes = useFuente(ver.compras, getOrdenes);
@@ -303,19 +312,18 @@ export function useResumenModulos(puede, ejecutandoElaboracion) {
     return {
       programacion: resumirProgramacion(datos),
       calidad: resumirCalidad(datos),
-      elaboracion: resumirElaboracion(datos, ejecutandoElaboracion),
+      elaboracion: resumirElaboracion(datos, ejecutandoPlcs),
       produccion: resumirProduccion(datos),
       auditoria: resumirAuditoria(datos),
       compras: resumirCompras(datos),
       administracion: resumirAdministracion(datos),
     };
-  }, [ordenes, lotes, tolvas, auditorias, recetas, comprasOrdenes, ejecutandoElaboracion]);
+  }, [ordenes, lotes, tolvas, auditorias, recetas, comprasOrdenes, ejecutandoPlcs]);
 
   const cargando = [ordenes, lotes, tolvas, auditorias, recetas, comprasOrdenes].includes(PENDIENTE);
 
   return { resumen, cargando };
 }
 
-/** PLC de Elaboración que están dosificando ahora. */
-export const ejecutandoEnElaboracion = (salas, now) =>
-  contar(salas, (s) => s.area.key === 'elaboracion' && enEjecucion(s, now));
+/** PLC (Elaboración y Aerosoles) que están elaborando ahora. */
+export const ejecutandoEnPlcs = (salas, now) => contar(salas, (s) => enEjecucion(s, now));

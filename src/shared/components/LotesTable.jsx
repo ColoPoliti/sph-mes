@@ -16,6 +16,7 @@ const BadgeFecha = ({ ts, tipo }) =>
 // Se llama con (fila, encendido). onInfo (opcional): columna "Info" que abre los datos del lote.
 // soloLectura: muestra el switch pero no deja cambiarlo (perfil usuario).
 // rutaLote: arma el link del Id (cada módulo puede abrir la etiqueta dentro de su propia sección).
+// columnasMedio (opcional): columnas de DataTable que van entre PLC y Código de barras (ej.: N° orden).
 // columnasExtra (opcional): columnas de DataTable que van antes de "Estado".
 // buscador, exportar, compacta: ver DataTable.
 export default function LotesTable({
@@ -25,7 +26,8 @@ export default function LotesTable({
   onAprobar,
   onInfo,
   soloLectura = false,
-  rutaLote = (id) => `/monitoreo/lotes/${id}`,
+  rutaLote = (id) => `/elaboracion/lotes/${id}`,
+  columnasMedio = [],
   columnasExtra = [],
   buscador = true,
   exportar,
@@ -52,6 +54,7 @@ export default function LotesTable({
           { id: 'plc', titulo: 'PLC', valor: (r) => r.sala, clase: 'tabular-nums' },
         ]
       : []),
+    ...columnasMedio,
     {
       id: 'codigo',
       titulo: 'Código de barras',

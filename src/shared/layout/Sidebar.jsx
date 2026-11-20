@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { moduloDeRuta } from '@/app/modulos';
 import SalasMenu from '@/modules/monitoreo/components/SalasMenu';
 import logoFoot from '@/assets/logo-foot.png';
+import logoFootClaro from '@/assets/logo-foot-claro.png';
 
 const esMovil = () =>
   typeof window !== 'undefined' && window.matchMedia('(max-width: 1023px)').matches;
@@ -112,7 +113,7 @@ export default function Sidebar({ open, onClose, onToggle }) {
       </div>
 
       <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2 pb-3">
-        {/* Monitoreo: primero el árbol de áreas y PLC, y debajo los ítems del módulo (ej.: Historial de elaboraciones) */}
+        {/* Monitoreo: árbol de áreas y PLC en vivo, y debajo los ítems del módulo (si tiene) */}
         {modulo.menuSalas && <SalasMenu open={open} onNavegar={cerrarSiMovil} />}
 
         {modulo.menu.map((item) => (
@@ -126,7 +127,9 @@ export default function Sidebar({ open, onClose, onToggle }) {
         className={`flex flex-none items-center border-t border-gray-200 dark:border-white/[.06] py-4 ${open ? 'justify-start gap-2.5 px-4' : 'justify-center px-2'
           }`}
       >
-        <img src={logoFoot} alt="industria 4" className="h-7 w-7 flex-shrink-0 object-contain" />
+        {/* Modo claro: el 4 en negro; modo oscuro: el original con el 4 en blanco */}
+        <img src={logoFootClaro} alt="industria 4" className="h-7 w-7 flex-shrink-0 object-contain dark:hidden" />
+        <img src={logoFoot} alt="industria 4" className="hidden h-7 w-7 flex-shrink-0 object-contain dark:block" />
         {open && (
           <span className="min-w-0 truncate text-sm font-bold tracking-tight text-gray-900 dark:text-white">
             industria 4

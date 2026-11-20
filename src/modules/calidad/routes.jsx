@@ -5,8 +5,8 @@ const OrdenesRevisar = lazy(() => import('./pages/OrdenesRevisar'));
 const LotesPendientes = lazy(() => import('./pages/LotesPendientes'));
 const Decisiones = lazy(() => import('./pages/Decisiones'));
 const IngresosMP = lazy(() => import('./pages/IngresosMP'));
-// La etiqueta digital es la misma del monitor: Calidad la abre dentro de su sección
-const EtiquetaDigital = lazy(() => import('@/modules/monitoreo/pages/EtiquetaDigital'));
+// La etiqueta digital es la de Elaboración: Calidad la abre dentro de su sección
+const EtiquetaDigital = lazy(() => import('@/modules/elaboracion/pages/EtiquetaDigital'));
 
 const SUB = 'Calidad';
 

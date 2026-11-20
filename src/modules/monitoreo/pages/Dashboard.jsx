@@ -1,23 +1,18 @@
-import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faBarcode,
   faChartLine,
-  faCircleInfo,
   faClock,
-  faClockRotateLeft,
   faFlask,
   faListOl,
   faTriangleExclamation,
   faWeightScale,
 } from '@fortawesome/free-solid-svg-icons';
 import AnimatedCounter from '@/shared/components/AnimatedCounter';
-import LotesTable from '@/shared/components/LotesTable';
 import PesoChart from '@/modules/monitoreo/components/PesoChart';
 import { ChipEtapa, ProgressPill, labelClass, subClass } from '@/shared/components/ui';
 import { CONFIG } from '@/modules/monitoreo/config';
 import { useMonitor } from '@/modules/monitoreo/context/MonitorContext';
-import { getUltimas } from '@/modules/monitoreo/lib/api';
 import { clamp, codigoMP, fmt, mmss, num } from '@/shared/lib/format';
 import { enEspera, enLinea, nombreEtapa, unidadEtapa } from '@/modules/monitoreo/lib/rooms';
 
@@ -26,45 +21,7 @@ const CARD = 'rounded-md bg-white/70 dark:bg-slate-900/60 shadow-md dark:shadow-
 const ROTULO_BARRA = 'whitespace-nowrap text-[11px] font-light uppercase tracking-[0.6px] text-gray-600 dark:text-slate-300';
 
 export default function Dashboard() {
-  const { selectedRoom: s, now, lotesVersion } = useMonitor();
-  const [ultimas, setUltimas] = useState([]);
-  const [avisoUlt, setAvisoUlt] = useState({ texto: '', error: false });
-
-  const areaKey = s?.area.key;
-  const plc = s?.plc;
-
-  useEffect(() => {
-    if (!areaKey || !plc) return;
-    let cancelado = false;
-
-    const cargar = async () => {
-      try {
-        const filas = await getUltimas({ area: areaKey, sala: plc, limit: 4 });
-        if (cancelado) return;
-        setUltimas(filas);
-        setAvisoUlt({
-          texto: filas.length
-            ? ''
-            : 'Todavía no hay elaboraciones registradas para este PLC.',
-          error: false,
-        });
-      } catch (e) {
-        if (cancelado) return;
-        setUltimas([]);
-        setAvisoUlt({
-          texto: 'No se pudo consultar la base de datos (' + e.message + ').',
-          error: true,
-        });
-      }
-    };
-
-    cargar();
-    const id = setInterval(cargar, 60000);
-    return () => {
-      cancelado = true;
-      clearInterval(id);
-    };
-  }, [areaKey, plc, lotesVersion]);
+  const { selectedRoom: s, now } = useMonitor();
 
   if (!s) {
     return <p className="text-gray-600 dark:text-slate-300">Cargando salas…</p>;
@@ -384,45 +341,6 @@ export default function Dashboard() {
           Peso en el tiempo
         </span>
         <PesoChart room={s} now={now} />
-      </section>
-
-      {/* Últimas elaboraciones */}
-      <section
-        aria-label="Últimas elaboraciones"
-        className={`${CARD} flex flex-col gap-2.5`}
-      >
-        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1.5">
-          <span className={`${labelClass} flex items-center gap-2`}>
-            <FontAwesomeIcon icon={faClockRotateLeft} aria-hidden="true" />
-            Últimas elaboraciones
-          </span>
-        </div>
-        {/* La tabla solo se muestra cuando hay elaboraciones */}
-        {ultimas.length > 0 && <LotesTable filas={ultimas} minWidth={600} compacta />}
-
-        {/* Sin datos (o error al consultar): aviso con ícono, centrado en la card */}
-        {ultimas.length === 0 && avisoUlt.texto && (
-          <div
-            className={`flex flex-1 flex-col items-center justify-center gap-3 py-8 text-center text-[15px] font-medium ${
-              avisoUlt.error ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-slate-300'
-            }`}
-          >
-            <FontAwesomeIcon icon={faTriangleExclamation} className="text-3xl" aria-hidden="true" />
-            <span>{avisoUlt.texto}</span>
-          </div>
-        )}
-
-        {/* Nota de info al pie de la card (mismo estilo que las de la etiqueta digital) */}
-        <p className="m-0 flex items-start gap-2 text-[15px] font-normal text-gray-600 dark:text-slate-300">
-          <FontAwesomeIcon
-            icon={faCircleInfo}
-            className="mt-[3px] flex-none text-violet-600 dark:text-violet-400"
-            aria-hidden="true"
-          />
-          <span>
-            {s.area.label} {s.plc} · click en un lote para ver su etiqueta digital
-          </span>
-        </p>
       </section>
     </div>
   );

@@ -1,14 +1,9 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFlask, faIndustry, faSprayCan } from '@fortawesome/free-solid-svg-icons';
 import { CONFIG, roomKey } from '@/modules/monitoreo/config';
 import { useMonitor } from '@/modules/monitoreo/context/MonitorContext';
-import { enEspera, enLinea, subSala } from '@/modules/monitoreo/lib/rooms';
-
-// Ícono de cada área (por su key en CONFIG.AREAS); un área nueva sin ícono usa el de fábrica
-const ICONOS_AREA = { elaboracion: faFlask, aerosoles: faSprayCan };
-const iconoArea = (key) => ICONOS_AREA[key] || faIndustry;
+import { enEspera, enLinea, iconoArea, subSala } from '@/modules/monitoreo/lib/rooms';
 
 function IconChevron({ className }) {
   return (

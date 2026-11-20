@@ -8,6 +8,9 @@ import Tooltip from './Tooltip';
 // icono (opcional): ícono de FontAwesome antes del texto. mayus: texto en mayúsculas (chips de estado)
 // animado: pulso suave, el mismo del "Dosificando" del monitor (se apaga con reducción de movimiento)
 // iconoGira: el ícono gira lentamente (ej.: engranaje de "En curso")
+// Achica un badge cuando está dentro de una celda de tabla (td .clase gana sobre la clase sola)
+export const EN_TABLA = '[td_&]:px-2 [td_&]:py-px [td_&]:text-[12px]';
+
 export function Chip({
   tipo = 'ok',
   grande = false,
@@ -17,8 +20,9 @@ export function Chip({
   iconoGira = false,
   children,
 }) {
-  // grande: alto total (31px) dentro del renglón de un texto de 22px, para no desalinear
-  const tam = grande ? 'px-2 text-[18px] font-bold leading-[29px] align-middle' :'px-2.5 py-[3px] text-[14px] font-semibold';
+  // grande: alto total (31px) dentro del renglón de un texto de 22px, para no desalinear.
+  // Dentro de una tabla (td) el chip normal va un poco más chico, en todas las tablas del proyecto
+  const tam = grande ? 'px-2 text-[18px] font-bold leading-[29px] align-middle' :`px-2.5 py-[3px] text-[14px] font-semibold ${EN_TABLA}`;
   return (
     <span
       className={`inline-block rounded-md border border-current ${tam} ${CHIP_VARIANTS[tipo]} ${
